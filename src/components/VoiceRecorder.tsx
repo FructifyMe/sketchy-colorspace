@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { pipeline } from '@huggingface/transformers';
+import { pipeline, AutomaticSpeechRecognitionOutput } from '@huggingface/transformers';
 import { useToast } from "@/components/ui/use-toast";
 
 interface VoiceRecorderProps {
@@ -69,33 +69,36 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
     setIsProcessing(true);
     try {
       const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+      const audioFile = new File([audioBlob], "recording.wav", { type: 'audio/wav' });
       
       // Initialize the transcription pipeline
       const transcriber = await pipeline(
         "automatic-speech-recognition",
-        "openai/whisper-small",
-        { device: "cpu" }
+        "openai/whisper-small"
       );
 
       // Transcribe the audio
-      const transcription = await transcriber(audioBlob);
-      console.log("Transcription:", transcription.text);
+      const transcription = await transcriber(audioFile);
+      const transcriptionText = Array.isArray(transcription) 
+        ? transcription[0]?.text || ''
+        : transcription.text || '';
+
+      console.log("Transcription:", transcriptionText);
 
       // Initialize the text classification pipeline for entity extraction
       const classifier = await pipeline(
         "text-classification",
-        "Xenova/bert-base-multilabel",
-        { device: "cpu" }
+        "Xenova/bert-base-multilabel"
       );
 
       // Analyze the transcription
-      const analysis = await classifier(transcription.text);
+      const analysis = await classifier(transcriptionText);
       console.log("Analysis:", analysis);
 
-      // Extract relevant information (this is a simple example - adjust based on your needs)
+      // Extract relevant information
       const estimateData = {
-        description: transcription.text,
-        items: extractItemsFromText(transcription.text)
+        description: transcriptionText,
+        items: extractItemsFromText(transcriptionText)
       };
 
       onTranscriptionComplete(estimateData);
@@ -116,9 +119,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
     }
   };
 
-  // Simple text extraction function - enhance this based on your needs
   const extractItemsFromText = (text: string) => {
-    // This is a very basic example - you'll want to enhance this with more sophisticated NLP
     const items = [];
     const lines = text.split('.');
     
