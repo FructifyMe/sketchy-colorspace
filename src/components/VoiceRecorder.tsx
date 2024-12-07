@@ -70,9 +70,9 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
     try {
       const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
       
-      // Convert audio to base64
+      // Convert audio to array buffer and then to Float32Array
       const audioArrayBuffer = await audioBlob.arrayBuffer();
-      const audioArray = new Uint8Array(audioArrayBuffer);
+      const audioArray = new Float32Array(audioArrayBuffer);
       
       // Initialize the transcription pipeline
       const transcriber = await pipeline(
@@ -80,8 +80,8 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
         "openai/whisper-small"
       );
 
-      // Transcribe the audio using the array buffer
-      const transcription = await transcriber({ data: audioArray });
+      // Transcribe the audio using Float32Array
+      const transcription = await transcriber(audioArray);
       const transcriptionText = Array.isArray(transcription) 
         ? transcription[0]?.text || ''
         : transcription.text || '';
