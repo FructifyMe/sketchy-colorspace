@@ -12,7 +12,7 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 255 89% 74%;
+    --primary: 151 55% 41.6%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -35,11 +35,11 @@
 }
 
 .hero-gradient {
-  background: linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%);
+  background: linear-gradient(135deg, #F2FCE2 0%, #FEF7CD 100%);
 }
 
 .button-gradient {
-  background: linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%);
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
   transition: all 0.2s ease-in-out;
 }
 
