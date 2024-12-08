@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import VoiceRecorder from './VoiceRecorder';
 import { useToast } from "@/components/ui/use-toast";
 import ClientInfoForm from './estimates/ClientInfoForm';
+import EstimateItems from './estimates/EstimateItems';
+import EstimateDescription from './estimates/EstimateDescription';
 import type { ClientInfo } from '@/types/estimate';
 
 const EstimateForm = () => {
@@ -78,41 +80,17 @@ const EstimateForm = () => {
       <form onSubmit={handleSubmit} className="space-y-6 mt-6">
         <Card className="p-4">
           <div className="space-y-4">
-            {/* Client Information */}
             <ClientInfoForm
               clientInfo={formData.clientInfo}
               onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
             />
 
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full min-h-[100px] p-2 border rounded-md"
-                placeholder="Description of work..."
-              />
-            </div>
+            <EstimateDescription
+              description={formData.description}
+              onChange={(description) => setFormData(prev => ({ ...prev, description }))}
+            />
 
-            {/* Items */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Items
-              </label>
-              {formData.items.map((item, index) => (
-                <div key={index} className="border p-4 rounded-md mb-2">
-                  <p><strong>Item:</strong> {item.name}</p>
-                  {item.quantity && <p><strong>Quantity:</strong> {item.quantity}</p>}
-                  {item.price && <p><strong>Price:</strong> ${item.price}</p>}
-                </div>
-              ))}
-              {formData.items.length === 0 && (
-                <p className="text-gray-500 italic">No items added yet. Record your voice to add items.</p>
-              )}
-            </div>
+            <EstimateItems items={formData.items} />
           </div>
         </Card>
 

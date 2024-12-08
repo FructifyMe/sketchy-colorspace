@@ -1,5 +1,4 @@
 import React from 'react';
-import { Textarea } from "@/components/ui/textarea";
 
 interface EstimateDescriptionProps {
   description: string;
@@ -8,15 +7,15 @@ interface EstimateDescriptionProps {
 
 const EstimateDescription = ({ description, onChange }: EstimateDescriptionProps) => {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-gray-700">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
         Description
       </label>
-      <Textarea
+      <textarea
         value={description}
         onChange={(e) => onChange(e.target.value)}
-        className="min-h-[100px]"
-        placeholder="Describe the work to be done"
+        className="w-full min-h-[100px] p-2 border rounded-md"
+        placeholder="Description of work..."
       />
     </div>
   );
