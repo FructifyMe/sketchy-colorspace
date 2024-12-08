@@ -18,6 +18,21 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from 'react';
 import EstimateItemForm from '../EstimateItemForm';
+import type { EstimateItem } from '@/types/estimate';
+
+interface Estimate {
+  id: string;
+  description: string | null;
+  client_info: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  } | null;
+  items: EstimateItem[];
+  status: string;
+  created_at: string;
+}
 
 const EstimateDetail = () => {
   const { id } = useParams();
@@ -41,8 +56,14 @@ const EstimateDetail = () => {
         throw error;
       }
 
-      console.log('Fetched estimate:', data);
-      return data;
+      // Ensure items is always an array
+      const parsedData = {
+        ...data,
+        items: Array.isArray(data.items) ? data.items : []
+      } as Estimate;
+
+      console.log('Fetched estimate:', parsedData);
+      return parsedData;
     }
   });
 
@@ -74,7 +95,7 @@ const EstimateDetail = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (updatedData: any) => {
+    mutationFn: async (updatedData: Partial<Estimate>) => {
       console.log('Updating estimate:', id, updatedData);
       const { error } = await supabase
         .from('estimates')
@@ -101,12 +122,22 @@ const EstimateDetail = () => {
     },
   });
 
-  const handleUpdateItem = (index: number, updatedItem: any) => {
+  const handleUpdateItem = (index: number, updatedItem: EstimateItem) => {
     if (!estimate) return;
     
-    const newItems = [...(estimate.items || [])];
+    const newItems = [...estimate.items];
     newItems[index] = updatedItem;
     
+    updateMutation.mutate({
+      ...estimate,
+      items: newItems,
+    });
+  };
+
+  const handleRemoveItem = (index: number) => {
+    if (!estimate) return;
+    
+    const newItems = estimate.items.filter((_, i) => i !== index);
     updateMutation.mutate({
       ...estimate,
       items: newItems,
@@ -126,8 +157,6 @@ const EstimateDetail = () => {
       </div>
     );
   }
-
-  const clientInfo = estimate.client_info as { name?: string; email?: string; phone?: string; address?: string; } | null;
 
   return (
     <div className="container mx-auto p-6">
@@ -174,19 +203,19 @@ const EstimateDetail = () => {
             <dl className="grid grid-cols-2 gap-4">
               <div>
                 <dt className="font-medium text-gray-500">Name</dt>
-                <dd>{clientInfo?.name || 'N/A'}</dd>
+                <dd>{estimate.client_info?.name || 'N/A'}</dd>
               </div>
               <div>
                 <dt className="font-medium text-gray-500">Email</dt>
-                <dd>{clientInfo?.email || 'N/A'}</dd>
+                <dd>{estimate.client_info?.email || 'N/A'}</dd>
               </div>
               <div>
                 <dt className="font-medium text-gray-500">Phone</dt>
-                <dd>{clientInfo?.phone || 'N/A'}</dd>
+                <dd>{estimate.client_info?.phone || 'N/A'}</dd>
               </div>
               <div>
                 <dt className="font-medium text-gray-500">Address</dt>
-                <dd>{clientInfo?.address || 'N/A'}</dd>
+                <dd>{estimate.client_info?.address || 'N/A'}</dd>
               </div>
             </dl>
           </CardContent>
@@ -205,33 +234,26 @@ const EstimateDetail = () => {
               
               <div>
                 <h4 className="font-medium text-gray-500">Items</h4>
-                {estimate.items && Array.isArray(estimate.items) && estimate.items.length > 0 ? (
-                  <div className="space-y-2">
-                    {estimate.items.map((item: any, index: number) => (
-                      <div key={index}>
-                        {isEditing ? (
-                          <EstimateItemForm
-                            item={item}
-                            index={index}
-                            onUpdate={handleUpdateItem}
-                            onRemove={() => {
-                              const newItems = estimate.items.filter((_: any, i: number) => i !== index);
-                              updateMutation.mutate({ ...estimate, items: newItems });
-                            }}
-                          />
-                        ) : (
-                          <div className="border p-3 rounded-lg">
-                            <p><strong>Item:</strong> {item.name}</p>
-                            {item.quantity && <p><strong>Quantity:</strong> {item.quantity}</p>}
-                            {item.price && <p><strong>Price:</strong> ${item.price}</p>}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500">No items added</p>
-                )}
+                <div className="space-y-2">
+                  {estimate.items.map((item, index) => (
+                    <div key={index}>
+                      {isEditing ? (
+                        <EstimateItemForm
+                          item={item}
+                          index={index}
+                          onUpdate={handleUpdateItem}
+                          onRemove={() => handleRemoveItem(index)}
+                        />
+                      ) : (
+                        <div className="border p-3 rounded-lg">
+                          <p><strong>Item:</strong> {item.name}</p>
+                          {item.quantity && <p><strong>Quantity:</strong> {item.quantity}</p>}
+                          {item.price && <p><strong>Price:</strong> ${item.price}</p>}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="flex justify-between items-center pt-4 border-t">
