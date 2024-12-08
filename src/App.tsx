@@ -10,6 +10,7 @@ import SignupPage from "./pages/signup";
 import SigninPage from "./pages/signin";
 import DashboardPage from "./pages/dashboard";
 import EstimateForm from "./components/EstimateForm";
+import EstimateDetail from "./components/estimates/EstimateDetail";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,14 @@ const App = () => (
             element={
               <PrivateRoute>
                 <EstimateForm />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/estimates/:id" 
+            element={
+              <PrivateRoute>
+                <EstimateDetail />
               </PrivateRoute>
             } 
           />
