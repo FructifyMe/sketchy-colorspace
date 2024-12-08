@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +28,7 @@ const DashboardPage = () => {
   const [showSettings, setShowSettings] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const { data: templates, isLoading: templatesLoading, error: templatesError } = useQuery({
     queryKey: ['templates'],
@@ -49,6 +50,7 @@ const DashboardPage = () => {
   const { data: estimates, isLoading: estimatesLoading } = useQuery({
     queryKey: ['estimates'],
     queryFn: async () => {
+      console.log("Fetching estimates for dashboard");
       const { data, error } = await supabase
         .from('estimates')
         .select('*')
@@ -59,6 +61,7 @@ const DashboardPage = () => {
         throw error;
       }
 
+      console.log("Fetched estimates:", data);
       return data as Estimate[];
     }
   });
@@ -84,6 +87,9 @@ const DashboardPage = () => {
         title: "Template deleted",
         description: `Successfully deleted ${template.name}`,
       });
+      
+      // Invalidate templates query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['templates'] });
     } catch (error) {
       console.error("Error deleting template:", error);
       toast({

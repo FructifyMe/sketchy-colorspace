@@ -23,6 +23,9 @@ export const useEstimateOperations = (id: string) => {
         title: "Estimate deleted",
         description: "The estimate has been successfully deleted",
       });
+      // Invalidate both the specific estimate and the estimates list queries
+      queryClient.invalidateQueries({ queryKey: ['estimate', id] });
+      queryClient.invalidateQueries({ queryKey: ['estimates'] });
     },
     onError: (error) => {
       console.error('Error deleting estimate:', error);
