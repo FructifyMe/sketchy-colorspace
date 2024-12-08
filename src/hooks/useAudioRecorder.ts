@@ -13,8 +13,7 @@ export const useAudioRecorder = () => {
       'audio/webm',
       'audio/mp4',
       'audio/ogg',
-      'audio/wav',
-      'audio/mp3'
+      'audio/wav'
     ];
     
     for (const type of types) {
@@ -30,7 +29,7 @@ export const useAudioRecorder = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 24000, // Required by OpenAI
+          sampleRate: 24000,
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,

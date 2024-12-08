@@ -9,6 +9,7 @@ const corsHeaders = {
 console.log("Transcribe audio function starting...")
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
