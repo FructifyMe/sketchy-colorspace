@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import VoiceRecorder from './VoiceRecorder';
 import { useToast } from "@/components/ui/use-toast";
+import VoiceRecorder from './VoiceRecorder';
 import ClientInfoForm from './estimates/ClientInfoForm';
 import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
+import EstimateFormActions from './estimates/EstimateFormActions';
 import { supabase } from "@/integrations/supabase/client";
 import type { ClientInfo } from '@/types/estimate';
 
@@ -69,8 +69,8 @@ const EstimateForm = () => {
         .insert({
           user_id: user.id,
           description: formData.description,
-          items: formData.items as any,
-          client_info: formData.clientInfo as any,
+          items: formData.items,
+          client_info: formData.clientInfo,
           status: 'draft'
         })
         .select()
@@ -100,19 +100,11 @@ const EstimateForm = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Create New Estimate</h2>
-        <Button
-          variant="outline"
-          onClick={() => navigate('/dashboard')}
-        >
-          Back to Dashboard
-        </Button>
-      </div>
-      
-      <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
-      
-      <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <EstimateFormActions isSubmitting={isSubmitting} />
+        
+        <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
+        
         <Card className="p-4">
           <div className="space-y-4">
             <ClientInfoForm
@@ -128,10 +120,6 @@ const EstimateForm = () => {
             <EstimateItems items={formData.items} />
           </div>
         </Card>
-
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : 'Save Estimate'}
-        </Button>
       </form>
     </div>
   );
