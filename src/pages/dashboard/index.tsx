@@ -4,20 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import type { Database } from "@/integrations/supabase/types";
 
-interface Template {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
+type Template = Database['public']['Tables']['templates']['Row'] & {
   template_data: {
     sections: {
       name: string;
       fields: string[];
     }[];
   };
-  is_default: boolean;
-}
+};
 
 const DashboardPage = () => {
   const { toast } = useToast();
@@ -35,7 +31,13 @@ const DashboardPage = () => {
         throw error;
       }
       
-      return data as Template[];
+      // Assert the template_data structure
+      const typedData = data?.map(template => ({
+        ...template,
+        template_data: template.template_data as Template['template_data']
+      }));
+      
+      return typedData as Template[];
     }
   });
 
