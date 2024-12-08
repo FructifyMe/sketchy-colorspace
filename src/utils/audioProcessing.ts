@@ -1,4 +1,5 @@
 import { pipeline } from '@huggingface/transformers';
+import { supabase } from '@/integrations/supabase/client';
 
 export const extractItemsFromText = (text: string) => {
   const items = [];
@@ -28,10 +29,18 @@ export const processAudioData = async (audioChunks: Blob[]) => {
 
   try {
     console.log("Initializing transcriber pipeline...");
+    
+    // Call Supabase Edge Function to get the API key
+    const { data, error } = await supabase.functions.invoke('get-huggingface-key');
+    if (error) throw new Error('Failed to get API key');
+
     const transcriber = await pipeline(
       "automatic-speech-recognition",
       "onnx-community/whisper-tiny.en",
-      { device: "cpu" } // Using CPU as fallback since WebGPU might not be available
+      { 
+        device: "cpu",
+        apiKey: data.apiKey
+      }
     );
 
     console.log("Transcribing audio...");
