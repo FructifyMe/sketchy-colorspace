@@ -69,8 +69,8 @@ const EstimateForm = () => {
         .insert({
           user_id: user.id,
           description: formData.description,
-          items: formData.items,
-          client_info: formData.clientInfo,
+          items: formData.items as any,
+          client_info: formData.clientInfo as any,
           status: 'draft'
         })
         .select()
@@ -85,7 +85,6 @@ const EstimateForm = () => {
         description: "Estimate saved successfully",
       });
 
-      // Navigate to the estimate view page
       navigate(`/estimates/${data.id}`);
     } catch (error) {
       console.error("Error saving estimate:", error);

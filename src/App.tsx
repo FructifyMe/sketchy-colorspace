@@ -15,7 +15,7 @@ function App() {
         <Route path="/" element={<Index />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route element={<AuthLayout />}>
+        <Route element={<AuthLayout><Outlet /></AuthLayout>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/estimates/new" element={<EstimateForm />} />
           <Route path="/estimates/:id" element={<EstimateView />} />

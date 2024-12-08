@@ -4,6 +4,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import type { ClientInfo, EstimateItem } from '@/types/estimate';
+
+interface EstimateData {
+  id: string;
+  description: string;
+  client_info: ClientInfo;
+  items: EstimateItem[];
+  status: string;
+}
 
 const EstimateView = () => {
   const { id } = useParams();
@@ -21,7 +30,7 @@ const EstimateView = () => {
 
       if (error) throw error;
       console.log("Fetched estimate:", data);
-      return data;
+      return data as EstimateData;
     }
   });
 
@@ -76,7 +85,7 @@ const EstimateView = () => {
         <div>
           <h2 className="text-lg font-semibold mb-2">Items</h2>
           <div className="space-y-4">
-            {estimate.items?.map((item: any, index: number) => (
+            {estimate.items?.map((item: EstimateItem, index: number) => (
               <Card key={index} className="p-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div>
@@ -99,7 +108,7 @@ const EstimateView = () => {
 
         <div className="flex justify-end">
           <p className="text-lg font-semibold">
-            Total: ${estimate.items?.reduce((acc: number, item: any) => 
+            Total: ${estimate.items?.reduce((acc: number, item: EstimateItem) => 
               acc + (item.price || 0) * (item.quantity || 1), 0
             )}
           </p>
