@@ -101,7 +101,7 @@ const EstimateForm = () => {
 
   return (
     <div className="w-full min-h-screen bg-background">
-      <form onSubmit={handleSubmit} className="w-full max-w-[95%] mx-auto py-8">
+      <form onSubmit={handleSubmit} className="w-full max-w-full px-4 py-8">
         <div className="grid gap-8">
           <Card className="w-full p-8">
             <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
