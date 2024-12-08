@@ -8,20 +8,14 @@ import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
 import EstimateFormActions from './estimates/EstimateFormActions';
 import { supabase } from "@/integrations/supabase/client";
-import type { ClientInfo, EstimateItem } from '@/types/estimate';
+import type { ClientInfo, EstimateItem, EstimateData } from '@/types/estimate';
 import type { Json } from '@/integrations/supabase/types';
-
-interface FormData {
-  description: string;
-  items: EstimateItem[];
-  clientInfo: ClientInfo;
-}
 
 const EstimateForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [formData, setFormData] = React.useState<FormData>({
+  const [formData, setFormData] = React.useState<EstimateData>({
     description: '',
     items: [],
     clientInfo: {
@@ -72,13 +66,17 @@ const EstimateForm = () => {
 
       console.log("Saving estimate:", formData);
       
+      // Convert items and clientInfo to Json type for Supabase
+      const itemsJson = formData.items as unknown as Json;
+      const clientInfoJson = formData.clientInfo as unknown as Json;
+      
       const { data, error } = await supabase
         .from('estimates')
         .insert({
           user_id: user.id,
           description: formData.description,
-          items: formData.items as Json,
-          client_info: formData.clientInfo as Json,
+          items: itemsJson,
+          client_info: clientInfoJson,
           status: 'draft'
         })
         .select()
