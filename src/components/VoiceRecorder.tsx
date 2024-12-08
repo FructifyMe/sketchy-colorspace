@@ -3,16 +3,10 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { processAudioData } from '@/utils/audioProcessing';
+import type { TranscriptionResult } from '@/types/estimate';
 
 interface VoiceRecorderProps {
-  onTranscriptionComplete: (data: {
-    description: string;
-    items: Array<{
-      name: string;
-      quantity?: number;
-      price?: number;
-    }>;
-  }) => void;
+  onTranscriptionComplete: (data: TranscriptionResult) => void;
 }
 
 const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }) => {
