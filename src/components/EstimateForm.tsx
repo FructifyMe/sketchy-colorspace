@@ -66,7 +66,6 @@ const EstimateForm = () => {
 
       console.log("Saving estimate:", formData);
       
-      // Convert items and clientInfo to Json type for Supabase
       const itemsJson = formData.items as unknown as Json;
       const clientInfoJson = formData.clientInfo as unknown as Json;
       
@@ -105,26 +104,41 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="max-w-7xl mx-auto px-4 py-8">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <EstimateFormActions isSubmitting={isSubmitting} />
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Create New Estimate</h2>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/dashboard')}
+            >
+              Back to Dashboard
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Estimate'}
+            </Button>
+          </div>
+        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             <Card className="p-6">
-              <div className="space-y-6">
-                <ClientInfoForm
-                  clientInfo={formData.clientInfo}
-                  onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
-                />
+              <ClientInfoForm
+                clientInfo={formData.clientInfo}
+                onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
+              />
+            </Card>
 
-                <EstimateDescription
-                  description={formData.description}
-                  onChange={(description) => setFormData(prev => ({ ...prev, description }))}
-                />
+            <Card className="p-6">
+              <EstimateDescription
+                description={formData.description}
+                onChange={(description) => setFormData(prev => ({ ...prev, description }))}
+              />
+            </Card>
 
-                <EstimateItems items={formData.items} />
-              </div>
+            <Card className="p-6">
+              <EstimateItems items={formData.items} />
             </Card>
           </div>
           
