@@ -99,28 +99,28 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="w-full min-h-screen">
-      <form onSubmit={handleSubmit} className="w-full p-4">
-        <div className="space-y-8 w-full">
-          <div className="w-full p-6 bg-white rounded-lg shadow">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
           </div>
 
-          <div className="w-full p-6 bg-white rounded-lg shadow">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <ClientInfoForm
               clientInfo={formData.clientInfo}
               onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
             />
           </div>
 
-          <div className="w-full p-6 bg-white rounded-lg shadow">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <EstimateDescription
               description={formData.description}
               onChange={(description) => setFormData(prev => ({ ...prev, description }))}
             />
           </div>
 
-          <div className="w-full p-6 bg-white rounded-lg shadow">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <EstimateItems items={formData.items} />
           </div>
 
@@ -136,8 +136,8 @@ const EstimateForm = () => {
               {isSubmitting ? 'Saving...' : 'Save Estimate'}
             </Button>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
