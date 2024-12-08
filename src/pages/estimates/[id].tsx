@@ -35,7 +35,12 @@ const EstimateView = () => {
         id: data.id,
         description: data.description || '',
         status: data.status || 'draft',
-        client_info: data.client_info as ClientInfo || {},
+        client_info: {
+          name: data.client_info?.name || '',
+          address: data.client_info?.address || '',
+          phone: data.client_info?.phone || '',
+          email: data.client_info?.email || ''
+        },
         items: (data.items as any[] || []).map(item => ({
           name: item.name || '',
           quantity: item.quantity || 1,
@@ -56,12 +61,12 @@ const EstimateView = () => {
   }
 
   const calculateTotal = () => {
-    return estimate.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    return estimate.items.reduce((acc, item) => acc + ((item.price || 0) * (item.quantity || 1)), 0);
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="print:hidden mb-6 p-4 bg-gray-50 rounded-lg">
+    <div className="container mx-auto px-4 py-6">
+      <div className="print:hidden mb-6">
         <EstimateActions 
           estimateId={estimate.id}
           onPrint={() => window.print()}
@@ -70,16 +75,16 @@ const EstimateView = () => {
         />
       </div>
 
-      <div className="p-6 print:p-4 bg-white">
+      <div className="bg-white shadow-lg rounded-lg p-6 print:p-4">
         <EstimateHeader estimateId={estimate.id} />
 
         <div className="mb-8 print:mb-6">
           <h2 className="font-semibold text-gray-900 mb-2">Bill To:</h2>
-          <div className="space-y-1 text-left">
-            <p className="font-medium">{estimate.client_info?.name || 'N/A'}</p>
-            <p>{estimate.client_info?.address || 'N/A'}</p>
-            <p>{estimate.client_info?.phone || 'N/A'}</p>
-            <p>{estimate.client_info?.email || 'N/A'}</p>
+          <div className="space-y-1">
+            <p className="font-medium">{estimate.client_info.name}</p>
+            <p>{estimate.client_info.address}</p>
+            <p>{estimate.client_info.phone}</p>
+            <p>{estimate.client_info.email}</p>
           </div>
         </div>
 
@@ -98,8 +103,10 @@ const EstimateView = () => {
                 <tr key={index} className="border-b">
                   <td className="py-3 px-4 text-left">{item.quantity}</td>
                   <td className="py-3 px-4 text-left">{item.name}</td>
-                  <td className="py-3 px-4 text-right">${item.price.toFixed(2)}</td>
-                  <td className="py-3 px-4 text-right">${(item.quantity * item.price).toFixed(2)}</td>
+                  <td className="py-3 px-4 text-right">${(item.price || 0).toFixed(2)}</td>
+                  <td className="py-3 px-4 text-right">
+                    ${((item.quantity || 1) * (item.price || 0)).toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -110,7 +117,7 @@ const EstimateView = () => {
         </div>
 
         {estimate.description && (
-          <div className="mt-8 text-left">
+          <div className="mt-8">
             <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-gray-600">{estimate.description}</p>
           </div>

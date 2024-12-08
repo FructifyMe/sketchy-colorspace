@@ -105,27 +105,35 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="container mx-auto px-4 py-6">
       <form onSubmit={handleSubmit} className="space-y-6">
         <EstimateFormActions isSubmitting={isSubmitting} />
         
-        <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
-        
-        <Card className="p-4">
-          <div className="space-y-4">
-            <ClientInfoForm
-              clientInfo={formData.clientInfo}
-              onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
-            />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Card className="p-6">
+              <div className="space-y-6">
+                <ClientInfoForm
+                  clientInfo={formData.clientInfo}
+                  onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
+                />
 
-            <EstimateDescription
-              description={formData.description}
-              onChange={(description) => setFormData(prev => ({ ...prev, description }))}
-            />
+                <EstimateDescription
+                  description={formData.description}
+                  onChange={(description) => setFormData(prev => ({ ...prev, description }))}
+                />
 
-            <EstimateItems items={formData.items} />
+                <EstimateItems items={formData.items} />
+              </div>
+            </Card>
           </div>
-        </Card>
+          
+          <div className="lg:col-span-1">
+            <Card className="p-6">
+              <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
+            </Card>
+          </div>
+        </div>
       </form>
     </div>
   );
