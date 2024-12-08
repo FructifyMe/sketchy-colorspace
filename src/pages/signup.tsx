@@ -65,13 +65,18 @@ const SignupPage = () => {
         theme="light"
         providers={[]}
         redirectTo={`${window.location.origin}/dashboard`}
-        onError={(error) => {
-          console.error("Auth error:", error);
-          toast({
-            variant: "destructive",
-            title: "Authentication Error",
-            description: error.message,
-          });
+        view="sign_up"
+        localization={{
+          variables: {
+            sign_up: {
+              email_label: "Email address",
+              password_label: "Create a password",
+              button_label: "Create account",
+              loading_button_label: "Creating your account...",
+              social_provider_text: "Sign up with {{provider}}",
+              link_text: "Don't have an account? Sign up",
+            },
+          },
         }}
       />
     </AuthLayout>
