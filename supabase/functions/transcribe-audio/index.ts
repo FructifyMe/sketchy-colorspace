@@ -9,7 +9,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -24,14 +23,13 @@ serve(async (req) => {
 
     console.log("Received audio file:", audioFile.name, "type:", audioFile.type, "size:", audioFile.size);
 
-    // Create a new FormData for the Whisper API
+    // Step 1: Transcribe audio using Whisper
     const whisperFormData = new FormData();
     whisperFormData.append('file', audioFile);
     whisperFormData.append('model', 'whisper-1');
     whisperFormData.append('response_format', 'json');
     whisperFormData.append('language', 'en');
 
-    // Step 1: Transcribe audio to text using Whisper
     console.log("Step 1: Transcribing audio with Whisper...");
     const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
@@ -51,8 +49,8 @@ serve(async (req) => {
     const transcribedText = transcriptionResult.text;
     console.log("Transcription result:", transcribedText);
 
-    // Step 2: Extract structured data using GPT-4
-    console.log("Step 2: Extracting structured data with GPT-4...");
+    // Step 2: Process with GPT-4 using enhanced prompt
+    console.log("Step 2: Processing with GPT-4...");
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -64,36 +62,59 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an AI assistant that extracts structured estimate information from transcribed text. 
-            Extract the following information in JSON format:
-            1. Client information (name, address, phone, email if mentioned)
-              - For email addresses: Always convert spelled out "at" to "@" symbol
-              - Format email addresses properly (e.g., "user@domain.com")
-              - Remove any spaces from email addresses
-            2. Description of the work
-            3. List of items with quantities and prices
-            
+            content: `You are an AI assistant specialized in creating detailed estimates from verbal descriptions. 
+            Your task is to analyze the input and structure it into a comprehensive estimate with the following sections:
+
+            1. Project Overview:
+               - Extract a clear, detailed description of the work
+               - Identify the type of work (e.g., construction, design, consulting)
+               - Note any specific requirements or conditions
+
+            2. Client Information:
+               - Name (required)
+               - Contact details (address, phone, email)
+               - Any specific client requirements or preferences
+               - Format email addresses properly (convert "at" to "@")
+
+            3. Line Items:
+               - Break down the work into specific items
+               - For each item, identify:
+                 * Description (clear and specific)
+                 * Quantity (with units if mentioned)
+                 * Unit price
+                 * Any specific details or requirements
+               - Group similar items together
+               - Include materials and labor separately when mentioned
+
+            4. Timeline and Scheduling (if mentioned):
+               - Start date
+               - Duration
+               - Key milestones
+
             Return the data in this exact format:
             {
-              "description": "Overall description of the work",
+              "description": "Comprehensive project description",
+              "projectType": "Type of work",
               "items": [
                 {
                   "name": "Item description",
                   "quantity": number,
-                  "price": number
+                  "price": number,
+                  "details": "Additional details"
                 }
               ],
               "clientInfo": {
                 "name": "string",
                 "address": "string",
                 "phone": "string",
-                "email": "string (properly formatted email address)"
+                "email": "string"
+              },
+              "timeline": {
+                "startDate": "string",
+                "duration": "string",
+                "milestones": []
               }
-            }
-            
-            Example email conversion:
-            Input: "john at gmail dot com" or "john at gmail.com"
-            Output: "john@gmail.com"`
+            }`
           },
           {
             role: "user",
@@ -101,7 +122,7 @@ serve(async (req) => {
           }
         ],
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 1500
       })
     });
 
@@ -123,13 +144,14 @@ serve(async (req) => {
       throw new Error("Failed to parse structured data from GPT response");
     }
 
-    // Return both the transcription and structured data
     return new Response(
       JSON.stringify({
         transcriptionText: transcribedText,
-        description: structuredData.description || '',
-        items: structuredData.items || [],
-        clientInfo: structuredData.clientInfo || {}
+        description: structuredData.description,
+        projectType: structuredData.projectType,
+        items: structuredData.items,
+        clientInfo: structuredData.clientInfo,
+        timeline: structuredData.timeline
       }),
       { 
         headers: { 
