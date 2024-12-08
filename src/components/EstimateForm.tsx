@@ -70,17 +70,37 @@ const EstimateForm = () => {
   const handleTranscriptionComplete = (data: any) => {
     console.log("Handling transcription data:", data);
     
-    setEstimateData(prev => ({
-      description: data.description || data.transcriptionText || prev.description,
-      items: data.items?.length ? [
-        ...data.items,
-        ...prev.items.slice(data.items.length)
-      ] : prev.items,
-      clientInfo: {
-        ...prev.clientInfo,
-        ...data.clientInfo
-      }
-    }));
+    // Update client info if available
+    if (data.clientInfo) {
+      setEstimateData(prev => ({
+        ...prev,
+        clientInfo: {
+          ...prev.clientInfo,
+          ...data.clientInfo
+        }
+      }));
+    }
+
+    // Update description if available
+    if (data.description) {
+      setEstimateData(prev => ({
+        ...prev,
+        description: data.description
+      }));
+    }
+
+    // Update items if available
+    if (data.items?.length) {
+      setEstimateData(prev => ({
+        ...prev,
+        items: data.items
+      }));
+    }
+
+    toast({
+      title: "Transcription complete",
+      description: "Form has been populated with the transcribed data",
+    });
   };
 
   const handleUpdateItem = (index: number, updatedItem: EstimateItem) => {
