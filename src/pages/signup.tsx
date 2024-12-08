@@ -55,6 +55,9 @@ const SignupPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
+  const siteUrl = window.location.origin;
+  console.log("Current site URL:", siteUrl);
+
   return (
     <AuthLayout>
       <div className="text-center">
@@ -86,7 +89,7 @@ const SignupPage = () => {
         }}
         theme="light"
         providers={[]}
-        redirectTo={`${window.location.origin}/dashboard`}
+        redirectTo={`${siteUrl}/dashboard`}
         view="sign_up"
         localization={{
           variables: {

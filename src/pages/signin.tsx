@@ -30,6 +30,9 @@ const SigninPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const siteUrl = window.location.origin;
+  console.log("Current site URL:", siteUrl);
+
   return (
     <AuthLayout>
       <div className="text-center">
@@ -61,7 +64,7 @@ const SigninPage = () => {
         }}
         theme="light"
         providers={[]}
-        redirectTo={`${window.location.origin}/dashboard`}
+        redirectTo={`${siteUrl}/dashboard`}
         view="sign_in"
       />
     </AuthLayout>
