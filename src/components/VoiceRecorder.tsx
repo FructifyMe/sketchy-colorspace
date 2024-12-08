@@ -36,7 +36,8 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
         
         onTranscriptionComplete({
           description: result.transcriptionText,
-          items: result.items
+          items: result.items,
+          clientInfo: result.clientInfo
         });
         
         toast({

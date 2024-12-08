@@ -28,7 +28,16 @@ export const useAudioRecorder = () => {
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: 24000, // Required by OpenAI
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+      
       const mimeType = getSupportedMimeType();
       
       if (!mimeType) {
