@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import VoiceRecorder from './VoiceRecorder';
 import { useToast } from "@/components/ui/use-toast";
-import ClientInfoForm from './estimates/ClientInfoForm';
-import EstimateItems from './estimates/EstimateItems';
-import EstimateDescription from './estimates/EstimateDescription';
 import type { EstimateItem, EstimateClientInfo } from '@/types/estimateDetail';
 import { useEstimateFormSubmit } from '@/hooks/useEstimateFormSubmit';
+import VoiceRecordingSection from './estimates/VoiceRecordingSection';
+import EstimateFormSection from './estimates/EstimateFormSection';
 
-const EstimateForm: React.FC = () => {
+const EstimateForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isSubmitting, handleSubmit } = useEstimateFormSubmit();
@@ -71,40 +68,14 @@ const EstimateForm: React.FC = () => {
         </Button>
       </div>
       
-      <Card className="mb-6">
-        <div className="p-6 text-center space-y-4">
-          <h3 className="text-lg font-semibold">Record Your Estimate Details</h3>
-          <p className="text-gray-600">
-            Simply speak into your device to create an estimate. Describe the work, 
-            pricing, and client details naturally.
-          </p>
-          <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
-        </div>
-      </Card>
+      <VoiceRecordingSection onTranscriptionComplete={handleTranscriptionComplete} />
       
-      {(formData.description || formData.items.length > 0 || formData.clientInfo.name) && (
-        <form onSubmit={onSubmit} className="space-y-6">
-          <Card className="p-4">
-            <div className="space-y-4">
-              <ClientInfoForm
-                clientInfo={formData.clientInfo}
-                onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
-              />
-
-              <EstimateDescription
-                description={formData.description}
-                onChange={(description) => setFormData(prev => ({ ...prev, description }))}
-              />
-
-              <EstimateItems items={formData.items} />
-            </div>
-          </Card>
-
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : 'Save Estimate'}
-          </Button>
-        </form>
-      )}
+      <EstimateFormSection
+        formData={formData}
+        isSubmitting={isSubmitting}
+        onSubmit={onSubmit}
+        onFormDataChange={(updates) => setFormData(prev => ({ ...prev, ...updates }))}
+      />
     </div>
   );
 };
