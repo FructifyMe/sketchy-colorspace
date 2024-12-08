@@ -18,27 +18,34 @@ const EstimateDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { deleteMutation, handleUpdateItem, handleRemoveItem, handleAddItem } = useEstimateOperations(id!);
 
-  const { data: estimate, isLoading } = useQuery({
+  const { data: estimate, isLoading, error } = useQuery({
     queryKey: ['estimate', id],
     queryFn: async () => {
       console.log('Fetching estimate:', id);
-      const { data, error } = await supabase
+      const { data: estimateData, error: estimateError } = await supabase
         .from('estimates')
-        .select('*, business_settings!inner(*)')
+        .select(`
+          *,
+          business_settings:business_settings!inner(*)
+        `)
         .eq('id', id)
         .single();
 
-      if (error) {
-        console.error("Error fetching estimate:", error);
-        throw error;
+      if (estimateError) {
+        console.error("Error fetching estimate:", estimateError);
+        throw estimateError;
+      }
+
+      if (!estimateData) {
+        throw new Error('Estimate not found');
       }
 
       const parsedData: Estimate = {
-        ...data,
-        client_info: parseClientInfo(data.client_info),
-        items: parseItems(data.items),
-        status: data.status || 'draft',
-        business_settings: data.business_settings,
+        ...estimateData,
+        client_info: parseClientInfo(estimateData.client_info),
+        items: parseItems(estimateData.items),
+        status: estimateData.status || 'draft',
+        business_settings: estimateData.business_settings,
       };
 
       console.log('Fetched estimate:', parsedData);
@@ -48,6 +55,16 @@ const EstimateDetail = () => {
 
   if (isLoading) {
     return <div className="container mx-auto p-6">Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="rounded-lg bg-destructive/15 p-4 text-destructive">
+          {error instanceof Error ? error.message : 'Error loading estimate'}
+        </div>
+      </div>
+    );
   }
 
   if (!estimate) {
