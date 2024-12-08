@@ -22,12 +22,11 @@ const EstimateDetail = () => {
     queryKey: ['estimate', id],
     queryFn: async () => {
       console.log('Fetching estimate:', id);
+      
+      // First, fetch the estimate
       const { data: estimateData, error: estimateError } = await supabase
         .from('estimates')
-        .select(`
-          *,
-          business_settings:business_settings(*)
-        `)
+        .select('*')
         .eq('id', id)
         .single();
 
@@ -42,15 +41,24 @@ const EstimateDetail = () => {
 
       console.log('Raw estimate data:', estimateData);
 
-      // Ensure business_settings is properly structured
-      const businessSettings = Array.isArray(estimateData.business_settings) 
-        ? estimateData.business_settings[0] 
-        : estimateData.business_settings;
+      // Then, fetch the business settings
+      const { data: businessSettingsData, error: businessSettingsError } = await supabase
+        .from('business_settings')
+        .select('*')
+        .eq('user_id', estimateData.user_id)
+        .single();
 
-      if (!businessSettings) {
-        console.error('No business settings found for estimate');
+      if (businessSettingsError) {
+        console.error("Error fetching business settings:", businessSettingsError);
+        throw businessSettingsError;
+      }
+
+      if (!businessSettingsData) {
+        console.error('No business settings found for user');
         throw new Error('Business settings not found');
       }
+
+      console.log('Business settings data:', businessSettingsData);
 
       const parsedData: Estimate = {
         ...estimateData,
@@ -58,15 +66,15 @@ const EstimateDetail = () => {
         items: parseItems(estimateData.items),
         status: estimateData.status || 'draft',
         business_settings: {
-          company_name: businessSettings.company_name || null,
-          company_logo: businessSettings.company_logo || null,
-          company_header: businessSettings.company_header || null,
-          address: businessSettings.address || null,
-          city: businessSettings.city || null,
-          state: businessSettings.state || null,
-          zip_code: businessSettings.zip_code || null,
-          phone: businessSettings.phone || null,
-          email: businessSettings.email || null,
+          company_name: businessSettingsData.company_name || null,
+          company_logo: businessSettingsData.company_logo || null,
+          company_header: businessSettingsData.company_header || null,
+          address: businessSettingsData.address || null,
+          city: businessSettingsData.city || null,
+          state: businessSettingsData.state || null,
+          zip_code: businessSettingsData.zip_code || null,
+          phone: businessSettingsData.phone || null,
+          email: businessSettingsData.email || null,
         },
       };
 
