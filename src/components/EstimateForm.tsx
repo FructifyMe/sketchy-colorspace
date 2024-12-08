@@ -100,24 +100,24 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="container mx-auto px-8 py-8 max-w-[1400px]">
       <form onSubmit={handleSubmit} className="space-y-8">
-        <Card className="p-6">
+        <Card className="p-8">
           <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-8">
           <ClientInfoForm
             clientInfo={formData.clientInfo}
             onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
           />
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-8">
           <EstimateItems items={formData.items} />
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-8">
           <EstimateDescription
             description={formData.description}
             onChange={(description) => setFormData(prev => ({ ...prev, description }))}
