@@ -26,7 +26,7 @@ const EstimateDetail = () => {
         .from('estimates')
         .select(`
           *,
-          business_settings:business_settings!inner(*)
+          business_settings:business_settings(*)
         `)
         .eq('id', id)
         .single();
@@ -40,15 +40,37 @@ const EstimateDetail = () => {
         throw new Error('Estimate not found');
       }
 
+      console.log('Raw estimate data:', estimateData);
+
+      // Ensure business_settings is properly structured
+      const businessSettings = Array.isArray(estimateData.business_settings) 
+        ? estimateData.business_settings[0] 
+        : estimateData.business_settings;
+
+      if (!businessSettings) {
+        console.error('No business settings found for estimate');
+        throw new Error('Business settings not found');
+      }
+
       const parsedData: Estimate = {
         ...estimateData,
         client_info: parseClientInfo(estimateData.client_info),
         items: parseItems(estimateData.items),
         status: estimateData.status || 'draft',
-        business_settings: estimateData.business_settings,
+        business_settings: {
+          company_name: businessSettings.company_name || null,
+          company_logo: businessSettings.company_logo || null,
+          company_header: businessSettings.company_header || null,
+          address: businessSettings.address || null,
+          city: businessSettings.city || null,
+          state: businessSettings.state || null,
+          zip_code: businessSettings.zip_code || null,
+          phone: businessSettings.phone || null,
+          email: businessSettings.email || null,
+        },
       };
 
-      console.log('Fetched estimate:', parsedData);
+      console.log('Parsed estimate data:', parsedData);
       return parsedData;
     }
   });
