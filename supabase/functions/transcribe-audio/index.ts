@@ -49,8 +49,8 @@ serve(async (req) => {
     const transcribedText = transcriptionResult.text;
     console.log("Transcription result:", transcribedText);
 
-    // Step 2: Process with GPT-4 using enhanced prompt for templateless approach
-    console.log("Step 2: Processing with GPT-4...");
+    // Step 2: Process with GPT-4 using enhanced prompt
+    console.log("Step 2: Processing with GPT-4o-mini...");
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -62,79 +62,48 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an AI assistant specialized in creating detailed estimates from verbal descriptions. 
-            Analyze the input and create a comprehensive estimate with the following structure:
+            content: `You are an AI assistant specialized in extracting estimate information from verbal descriptions.
+            Extract the following information and format it as a JSON object:
 
-            1. Project Overview:
-               - Extract a clear, detailed description of the work
-               - Identify and categorize the type of work (e.g., Construction, Landscaping, Design, etc.)
-               - Note any specific requirements, conditions, or constraints
-               - Identify any permits or licenses needed
+            1. Client Information:
+               - Name
+               - Email
+               - Phone
+               - Address
 
-            2. Client Information:
-               - Name (required if mentioned)
-               - Contact details (address, phone, email if provided)
-               - Any specific client preferences or requirements
-               - Format email addresses properly (convert spoken "at" to "@")
-               - Any relevant property details
+            2. Main Description:
+               - Overall description of the work to be done
 
-            3. Line Items (break down into logical categories):
-               For each item identify:
-               - Category (group similar items)
-               - Description (be specific and detailed)
-               - Quantity (with units)
-               - Unit price (if mentioned)
-               - Labor costs (separate from materials)
-               - Any specific requirements or notes
-               
-            4. Timeline and Scheduling:
-               - Start date (if mentioned)
-               - Duration estimates
-               - Key milestones or phases
-               - Any scheduling constraints
-               - Season-specific considerations
+            3. Line Items:
+               For each distinct item or service mentioned:
+               - Description
+               - Quantity
+               - Price
 
-            5. Additional Considerations:
-               - Required materials
-               - Equipment needed
-               - Safety requirements
-               - Warranty information
-               - Maintenance recommendations
+            4. Notes:
+               - Any special instructions
+               - Access information
+               - Special requirements
+               - Client preferences
+               - Any other relevant details not fitting into the above categories
 
             Return a JSON object with this exact structure:
             {
-              "description": "Comprehensive project description",
-              "projectType": "Category of work",
+              "clientInfo": {
+                "name": "string or null",
+                "email": "string or null",
+                "phone": "string or null",
+                "address": "string or null"
+              },
+              "description": "string",
               "items": [
                 {
-                  "category": "Logical grouping",
-                  "name": "Item description",
+                  "description": "string",
                   "quantity": number,
-                  "price": number,
-                  "isLabor": boolean,
-                  "notes": "Additional details"
+                  "price": number
                 }
               ],
-              "clientInfo": {
-                "name": "string",
-                "address": "string",
-                "phone": "string",
-                "email": "string",
-                "propertyDetails": "string"
-              },
-              "timeline": {
-                "startDate": "string",
-                "duration": "string",
-                "milestones": ["string"],
-                "constraints": "string"
-              },
-              "additionalDetails": {
-                "materials": ["string"],
-                "equipment": ["string"],
-                "safety": ["string"],
-                "warranty": "string",
-                "maintenance": "string"
-              }
+              "notes": "string containing all special instructions and additional details"
             }`
           },
           {
@@ -154,7 +123,7 @@ serve(async (req) => {
     }
 
     const extractionResult = await extractionResponse.json();
-    console.log("GPT-4 response:", extractionResult);
+    console.log("GPT-4o-mini response:", extractionResult);
 
     let structuredData;
     try {
@@ -168,12 +137,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         transcriptionText: transcribedText,
-        description: structuredData.description,
-        projectType: structuredData.projectType,
-        items: structuredData.items,
-        clientInfo: structuredData.clientInfo,
-        timeline: structuredData.timeline,
-        additionalDetails: structuredData.additionalDetails
+        ...structuredData
       }),
       { 
         headers: { 
