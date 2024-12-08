@@ -35,7 +35,7 @@ const EstimateHeader = ({
           variant="secondary"
           onClick={onToggleEdit}
         >
-          {isEditing ? 'Done Editing' : 'Edit'}
+          {isEditing ? 'Save' : 'Edit'}
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
