@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { ClientInfo, EstimateItem } from '@/types/estimate';
+import type { Json } from '@/integrations/supabase/types';
 
 interface EstimateData {
   id: string;
@@ -30,7 +31,23 @@ const EstimateView = () => {
 
       if (error) throw error;
       console.log("Fetched estimate:", data);
-      return data as EstimateData;
+      
+      // Convert the JSON data to our expected types
+      const convertedData: EstimateData = {
+        id: data.id,
+        description: data.description || '',
+        status: data.status || 'draft',
+        client_info: data.client_info as ClientInfo || {},
+        items: Array.isArray(data.items) 
+          ? data.items.map((item: any) => ({
+              name: item.name || '',
+              quantity: item.quantity || 1,
+              price: item.price || 0
+            }))
+          : []
+      };
+
+      return convertedData;
     }
   });
 
