@@ -23,9 +23,9 @@ export const processAudioData = async (audioChunks: Blob[]) => {
       throw error;
     }
 
-    console.log("Transcription completed:", data);
+    console.log("Transcription and extraction completed:", data);
     return {
-      transcriptionText: data.text || '',
+      transcriptionText: data.transcriptionText || '',
       items: data.items || [],
       clientInfo: data.clientInfo || {}
     };
