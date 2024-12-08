@@ -26,8 +26,8 @@ const SignupPage = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
       
-      if (event === 'SIGNED_UP') {
-        console.log("User signed up:", session?.user);
+      if (event === "SIGNED_IN" || event === "SIGNED_UP") {
+        console.log("User signed up/in:", session?.user);
         // Check if profile was created
         if (session?.user?.id) {
           const { data: profile, error } = await supabase
@@ -47,9 +47,6 @@ const SignupPage = () => {
             return;
           }
         }
-      }
-
-      if (session) {
         navigate("/dashboard");
       }
     });
