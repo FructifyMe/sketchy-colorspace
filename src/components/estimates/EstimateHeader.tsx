@@ -9,6 +9,7 @@ interface EstimateHeaderProps {
   onDelete: () => void;
   onNavigateBack: () => void;
   estimateId: string;
+  onDownloadPDF: () => void;
 }
 
 const EstimateHeader = ({ 
@@ -16,16 +17,12 @@ const EstimateHeader = ({
   onToggleEdit, 
   onDelete, 
   onNavigateBack,
-  estimateId
+  estimateId,
+  onDownloadPDF
 }: EstimateHeaderProps) => {
   const handlePrint = () => {
     console.log('Printing estimate...');
     window.print();
-  };
-
-  const handleDownloadPDF = () => {
-    console.log('Downloading PDF...');
-    window.print(); // This will open the print dialog with "Save as PDF" option
   };
 
   return (
@@ -46,7 +43,7 @@ const EstimateHeader = ({
 
         <Button
           variant="outline"
-          onClick={handleDownloadPDF}
+          onClick={onDownloadPDF}
         >
           <FileDown className="h-4 w-4 mr-2" />
           Save PDF

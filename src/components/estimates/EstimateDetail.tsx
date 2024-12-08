@@ -11,12 +11,29 @@ import EstimateStatus from './EstimateStatus';
 import { useEstimateOperations } from '@/hooks/useEstimateOperations';
 import type { Estimate } from '@/types/estimateDetail';
 import { parseClientInfo, parseItems } from '@/types/estimateDetail';
+import html2pdf from 'html2pdf.js';
 
 const EstimateDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const { deleteMutation, handleUpdateItem, handleRemoveItem, handleAddItem } = useEstimateOperations(id!);
+
+  const handleDownloadPDF = () => {
+    console.log('Downloading PDF directly...');
+    const element = document.getElementById('estimate-content');
+    if (!element) return;
+    
+    const opt = {
+      margin: 1,
+      filename: 'estimate.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(element).save();
+  };
 
   const { data: estimate, isLoading, error } = useQuery({
     queryKey: ['estimate', id],
@@ -115,12 +132,15 @@ const EstimateDetail = () => {
         onDelete={() => deleteMutation.mutate()}
         onNavigateBack={() => navigate('/dashboard')}
         estimateId={estimate.id}
+        onDownloadPDF={handleDownloadPDF}
       />
 
-      <div className="space-y-6 print:space-y-4">
+      <div id="estimate-content" className="space-y-6 print:space-y-4">
         <EstimatePrintHeader businessSettings={estimate.business_settings} />
 
         <EstimateClientInfo clientInfo={estimate.client_info} />
+
+        <h2 className="text-2xl font-semibold mb-4">Estimate</h2>
 
         <Card className="print:shadow-none print:border-none">
           <CardHeader>
