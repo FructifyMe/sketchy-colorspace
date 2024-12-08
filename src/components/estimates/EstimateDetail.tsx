@@ -1,12 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { formatDistanceToNow } from 'date-fns';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EstimateClientInfo from './EstimateClientInfo';
 import EstimateItemsSection from './EstimateItemsSection';
 import EstimateHeader from './EstimateHeader';
+import EstimatePrintHeader from './EstimatePrintHeader';
+import EstimateStatus from './EstimateStatus';
 import { useEstimateOperations } from '@/hooks/useEstimateOperations';
 import type { Estimate } from '@/types/estimateDetail';
 import { parseClientInfo, parseItems } from '@/types/estimateDetail';
@@ -37,6 +38,7 @@ const EstimateDetail = () => {
         client_info: parseClientInfo(data.client_info),
         items: parseItems(data.items),
         status: data.status || 'draft',
+        business_settings: data.business_settings,
       };
 
       console.log('Fetched estimate:', parsedData);
@@ -69,18 +71,7 @@ const EstimateDetail = () => {
       />
 
       <div className="space-y-6 print:space-y-4">
-        {/* Print-only header */}
-        <div className="hidden print:block mb-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-2">{estimate.business_settings?.company_name || 'Company Name'}</h1>
-            <p className="text-sm text-gray-600">
-              {estimate.business_settings?.address}, {estimate.business_settings?.city}, {estimate.business_settings?.state} {estimate.business_settings?.zip_code}
-            </p>
-            <p className="text-sm text-gray-600">
-              {estimate.business_settings?.phone} | {estimate.business_settings?.email}
-            </p>
-          </div>
-        </div>
+        <EstimatePrintHeader businessSettings={estimate.business_settings} />
 
         <EstimateClientInfo clientInfo={estimate.client_info} />
 
@@ -101,19 +92,10 @@ const EstimateDetail = () => {
           onAddItem={() => handleAddItem(estimate)}
         />
 
-        <Card className="print:shadow-none print:border-none">
-          <CardContent className="pt-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="text-sm text-gray-500">Status: </span>
-                <span className="capitalize">{estimate.status}</span>
-              </div>
-              <div className="text-sm text-gray-500 print:hidden">
-                Created {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <EstimateStatus 
+          status={estimate.status} 
+          createdAt={estimate.created_at} 
+        />
       </div>
     </div>
   );

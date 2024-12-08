@@ -13,6 +13,18 @@ export interface EstimateItem {
   price: number;
 }
 
+export interface BusinessSettings {
+  company_name: string | null;
+  company_logo: string | null;
+  company_header: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
 export interface Estimate {
   id: string;
   description: string | null;
@@ -22,6 +34,7 @@ export interface Estimate {
   created_at: string;
   updated_at: string;
   user_id: string;
+  business_settings: BusinessSettings;
 }
 
 // Helper function to parse client info from Supabase JSON
