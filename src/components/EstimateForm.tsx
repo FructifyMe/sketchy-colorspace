@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import VoiceRecorder from './VoiceRecorder';
+import EstimateItemForm from './EstimateItemForm';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -28,9 +28,19 @@ const EstimateForm = () => {
     console.log("Estimate data updated:", data);
   };
 
+  const handleUpdateItem = (index: number, updatedItem: EstimateItem) => {
+    const newItems = [...estimateData.items];
+    newItems[index] = updatedItem;
+    setEstimateData(prev => ({ ...prev, items: newItems }));
+  };
+
+  const handleRemoveItem = (index: number) => {
+    const newItems = estimateData.items.filter((_, i) => i !== index);
+    setEstimateData(prev => ({ ...prev, items: newItems }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically save the estimate
     console.log("Submitting estimate:", estimateData);
     toast({
       title: "Estimate saved",
@@ -62,52 +72,13 @@ const EstimateForm = () => {
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900">Items</h3>
           {estimateData.items.map((item, index) => (
-            <div key={index} className="flex gap-4 items-start p-4 border rounded-lg">
-              <div className="flex-1">
-                <Input
-                  value={item.name}
-                  onChange={(e) => {
-                    const newItems = [...estimateData.items];
-                    newItems[index] = { ...item, name: e.target.value };
-                    setEstimateData(prev => ({ ...prev, items: newItems }));
-                  }}
-                  placeholder="Item name"
-                  className="mb-2"
-                />
-                <div className="flex gap-4">
-                  <Input
-                    type="number"
-                    value={item.quantity || ''}
-                    onChange={(e) => {
-                      const newItems = [...estimateData.items];
-                      newItems[index] = { ...item, quantity: parseInt(e.target.value) };
-                      setEstimateData(prev => ({ ...prev, items: newItems }));
-                    }}
-                    placeholder="Quantity"
-                  />
-                  <Input
-                    type="number"
-                    value={item.price || ''}
-                    onChange={(e) => {
-                      const newItems = [...estimateData.items];
-                      newItems[index] = { ...item, price: parseFloat(e.target.value) };
-                      setEstimateData(prev => ({ ...prev, items: newItems }));
-                    }}
-                    placeholder="Price"
-                  />
-                </div>
-              </div>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => {
-                  const newItems = estimateData.items.filter((_, i) => i !== index);
-                  setEstimateData(prev => ({ ...prev, items: newItems }));
-                }}
-              >
-                Remove
-              </Button>
-            </div>
+            <EstimateItemForm
+              key={index}
+              item={item}
+              index={index}
+              onUpdate={handleUpdateItem}
+              onRemove={handleRemoveItem}
+            />
           ))}
           <Button
             type="button"
