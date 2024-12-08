@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import VoiceRecorder from './VoiceRecorder';
 import { useToast } from "@/components/ui/use-toast";
 import ClientInfoForm from './estimates/ClientInfoForm';
+import type { ClientInfo } from '@/types/estimate';
 
 const EstimateForm = () => {
   const navigate = useNavigate();
@@ -17,23 +18,24 @@ const EstimateForm = () => {
       address: '',
       phone: '',
       email: ''
-    }
+    } as ClientInfo
   });
 
   const handleTranscriptionComplete = (data: any) => {
     console.log("Received transcription data:", data);
     
     // Update form with transcribed data
-    setFormData({
+    setFormData(prev => ({
       description: data.description || '',
       items: Array.isArray(data.items) ? data.items : [],
       clientInfo: {
+        ...prev.clientInfo,
         name: data.clientInfo?.name || '',
         address: data.clientInfo?.address || '',
         phone: data.clientInfo?.phone || '',
         email: data.clientInfo?.email || ''
       }
-    });
+    }));
 
     toast({
       title: "Transcription complete",
