@@ -35,7 +35,9 @@ serve(async (req) => {
     });
 
     if (!transcriptionResponse.ok) {
-      throw new Error(`Transcription failed: ${await transcriptionResponse.text()}`);
+      const error = await transcriptionResponse.text();
+      console.error("Transcription failed:", error);
+      throw new Error(`Transcription failed: ${error}`);
     }
 
     const transcriptionResult = await transcriptionResponse.json();
@@ -51,7 +53,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
@@ -71,7 +73,9 @@ serve(async (req) => {
     });
 
     if (!extractionResponse.ok) {
-      throw new Error(`Extraction failed: ${await extractionResponse.text()}`);
+      const error = await extractionResponse.text();
+      console.error("Extraction failed:", error);
+      throw new Error(`Extraction failed: ${error}`);
     }
 
     const extractionResult = await extractionResponse.json();
