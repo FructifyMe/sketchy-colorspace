@@ -23,15 +23,23 @@ export const extractItemsFromText = (text: string) => {
 export const processAudioData = async (audioChunks: Blob[]) => {
   console.log("Starting audio processing...");
   
-  // Create a blob with explicit MIME type
-  const mimeType = audioChunks[0].type || 'audio/mp3';
+  if (audioChunks.length === 0) {
+    throw new Error("No audio data recorded");
+  }
+
+  // Get the MIME type from the first chunk
+  const mimeType = audioChunks[0].type;
+  console.log("Processing audio with MIME type:", mimeType);
+
+  // Create a blob with the original MIME type
   const audioBlob = new Blob(audioChunks, { type: mimeType });
-  console.log("Audio blob created with type:", mimeType);
+  console.log("Audio blob created, size:", audioBlob.size);
 
   try {
     // Create FormData with the audio file
     const formData = new FormData();
-    formData.append('audio', audioBlob, `recording.${mimeType.split('/')[1]}`);
+    // Use a generic extension that OpenAI accepts
+    formData.append('audio', audioBlob, 'recording.webm');
     
     console.log("Sending audio to transcription service...");
     const { data, error } = await supabase.functions.invoke('transcribe-audio', {
