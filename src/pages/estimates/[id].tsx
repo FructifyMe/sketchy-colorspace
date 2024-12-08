@@ -55,72 +55,62 @@ const EstimateView = () => {
     return <div className="flex justify-center items-center min-h-screen">Estimate not found</div>;
   }
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleEmail = () => {
-    console.log('Email functionality to be implemented');
-  };
-
-  const handleDownload = () => {
-    console.log('Download functionality to be implemented');
-  };
-
   const calculateTotal = () => {
     return estimate.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 print:p-4">
-      <EstimateActions 
-        estimateId={estimate.id}
-        onPrint={handlePrint}
-        onEmail={handleEmail}
-        onDownload={handleDownload}
-      />
+    <div className="max-w-4xl mx-auto">
+      <div className="print:hidden mb-6 p-4 bg-gray-50 rounded-lg">
+        <EstimateActions 
+          estimateId={estimate.id}
+          onPrint={() => window.print()}
+          onEmail={() => console.log('Email functionality to be implemented')}
+          onDownload={() => console.log('Download functionality to be implemented')}
+        />
+      </div>
 
-      <div className="space-y-6 print:space-y-4 bg-white">
+      <div className="p-6 print:p-4 bg-white">
         <EstimateHeader estimateId={estimate.id} />
 
-        <div className="mb-8 print:mb-6 text-left">
+        <div className="mb-8 print:mb-6">
           <h2 className="font-semibold text-gray-900 mb-2">Bill To:</h2>
-          <div className="space-y-1">
-            <p>{estimate.client_info?.name || 'N/A'}</p>
+          <div className="space-y-1 text-left">
+            <p className="font-medium">{estimate.client_info?.name || 'N/A'}</p>
             <p>{estimate.client_info?.address || 'N/A'}</p>
             <p>{estimate.client_info?.phone || 'N/A'}</p>
             <p>{estimate.client_info?.email || 'N/A'}</p>
           </div>
         </div>
 
-        <div className="space-y-4 print:space-y-2">
+        <div className="mt-8">
           <table className="w-full">
             <thead>
-              <tr className="border-b">
-                <th className="py-2 text-left w-20">QTY</th>
-                <th className="py-2 text-left">Description</th>
-                <th className="py-2 text-right w-32">Unit Price</th>
-                <th className="py-2 text-right w-32">Amount</th>
+              <tr className="border-t border-b">
+                <th className="py-2 px-4 text-left font-medium text-gray-700 w-20">QTY</th>
+                <th className="py-2 px-4 text-left font-medium text-gray-700">Description</th>
+                <th className="py-2 px-4 text-right font-medium text-gray-700 w-32">Unit Price</th>
+                <th className="py-2 px-4 text-right font-medium text-gray-700 w-32">Amount</th>
               </tr>
             </thead>
             <tbody>
               {estimate.items.map((item, index) => (
                 <tr key={index} className="border-b">
-                  <td className="py-3 text-left">{item.quantity}</td>
-                  <td className="py-3 text-left">{item.name}</td>
-                  <td className="py-3 text-right">${item.price.toFixed(2)}</td>
-                  <td className="py-3 text-right">${(item.quantity * item.price).toFixed(2)}</td>
+                  <td className="py-3 px-4 text-left">{item.quantity}</td>
+                  <td className="py-3 px-4 text-left">{item.name}</td>
+                  <td className="py-3 px-4 text-right">${item.price.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-right">${(item.quantity * item.price).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="pt-4 text-right border-t">
+          <div className="mt-4 text-right border-t pt-4">
             <p className="text-lg font-bold">Total: ${calculateTotal().toFixed(2)}</p>
           </div>
         </div>
 
         {estimate.description && (
-          <div className="mt-8 print:mt-6">
+          <div className="mt-8 text-left">
             <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-gray-600">{estimate.description}</p>
           </div>

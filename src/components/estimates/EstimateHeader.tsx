@@ -25,14 +25,7 @@ const EstimateHeader = ({ estimateId }: EstimateHeaderProps) => {
 
   return (
     <div className="border-b pb-6 mb-6 print:pb-4 print:mb-4">
-      <div className="flex items-start gap-4">
-        {businessSettings?.company_logo && (
-          <img 
-            src={businessSettings.company_logo} 
-            alt="Company logo" 
-            className="h-16 w-16 object-contain print:hidden"
-          />
-        )}
+      <div className="flex justify-between items-start">
         <div className="text-left">
           <h1 className="text-2xl font-bold text-gray-900">
             {businessSettings?.company_name || 'Company Name'}
@@ -49,6 +42,13 @@ const EstimateHeader = ({ estimateId }: EstimateHeaderProps) => {
             <p>{businessSettings?.email}</p>
           </div>
         </div>
+        {businessSettings?.company_logo && (
+          <img 
+            src={businessSettings.company_logo} 
+            alt="Company logo" 
+            className="h-16 w-auto object-contain print:hidden"
+          />
+        )}
       </div>
     </div>
   );
