@@ -4,6 +4,7 @@ import VoiceRecorder from './VoiceRecorder';
 import EstimateItemForm from './EstimateItemForm';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -22,9 +23,17 @@ interface EstimateItem {
   price?: number;
 }
 
+interface ClientInfo {
+  name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+}
+
 interface EstimateData {
   description: string;
   items: EstimateItem[];
+  clientInfo?: ClientInfo;
 }
 
 const EstimateForm = () => {
@@ -33,7 +42,13 @@ const EstimateForm = () => {
   const template = location.state?.template as Template;
   const [estimateData, setEstimateData] = useState<EstimateData>({
     description: '',
-    items: []
+    items: [],
+    clientInfo: {
+      name: '',
+      address: '',
+      phone: '',
+      email: ''
+    }
   });
   const { toast } = useToast();
 
@@ -49,7 +64,6 @@ const EstimateForm = () => {
     }
 
     console.log("Initializing estimate form with template:", template);
-    // Initialize items based on template sections
     const initialItems = template.template_data.sections.map(() => ({
       name: '',
       quantity: undefined,
@@ -59,8 +73,25 @@ const EstimateForm = () => {
   }, [template, navigate, toast]);
 
   const handleTranscriptionComplete = (data: EstimateData) => {
-    setEstimateData(data);
-    console.log("Estimate data updated:", data);
+    console.log("Received transcription data:", data);
+    
+    // Update estimate data with transcribed information
+    setEstimateData(prev => ({
+      description: data.description || prev.description,
+      items: data.items?.length ? [
+        ...data.items,
+        ...prev.items.slice(data.items.length)
+      ] : prev.items,
+      clientInfo: {
+        ...prev.clientInfo,
+        ...data.clientInfo
+      }
+    }));
+    
+    toast({
+      title: "Transcription processed",
+      description: "The estimate has been updated with the transcribed information",
+    });
   };
 
   const handleUpdateItem = (index: number, updatedItem: EstimateItem) => {
@@ -102,6 +133,57 @@ const EstimateForm = () => {
       <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
       
       <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-900">Client Information</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700">Name</label>
+              <Input
+                value={estimateData.clientInfo?.name || ''}
+                onChange={(e) => setEstimateData(prev => ({
+                  ...prev,
+                  clientInfo: { ...prev.clientInfo, name: e.target.value }
+                }))}
+                placeholder="Client name"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Email</label>
+              <Input
+                type="email"
+                value={estimateData.clientInfo?.email || ''}
+                onChange={(e) => setEstimateData(prev => ({
+                  ...prev,
+                  clientInfo: { ...prev.clientInfo, email: e.target.value }
+                }))}
+                placeholder="client@example.com"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Phone</label>
+              <Input
+                value={estimateData.clientInfo?.phone || ''}
+                onChange={(e) => setEstimateData(prev => ({
+                  ...prev,
+                  clientInfo: { ...prev.clientInfo, phone: e.target.value }
+                }))}
+                placeholder="Phone number"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Address</label>
+              <Input
+                value={estimateData.clientInfo?.address || ''}
+                onChange={(e) => setEstimateData(prev => ({
+                  ...prev,
+                  clientInfo: { ...prev.clientInfo, address: e.target.value }
+                }))}
+                placeholder="Client address"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">
             Description
