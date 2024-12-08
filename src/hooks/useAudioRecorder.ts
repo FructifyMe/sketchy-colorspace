@@ -11,7 +11,10 @@ export const useAudioRecorder = () => {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      // Specify MP3 as the recording format
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: 'audio/mp3'
+      });
       audioChunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (event) => {
@@ -21,18 +24,40 @@ export const useAudioRecorder = () => {
       mediaRecorderRef.current.start();
       setIsRecording(true);
       
-      console.log("Started recording");
+      console.log("Started recording in MP3 format");
       toast({
         title: "Recording started",
         description: "Speak clearly about the job details",
       });
     } catch (error) {
-      console.error("Error starting recording:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Could not access microphone",
-      });
+      // If MP3 is not supported, try WAV
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorderRef.current = new MediaRecorder(stream, {
+          mimeType: 'audio/wav'
+        });
+        audioChunksRef.current = [];
+
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          audioChunksRef.current.push(event.data);
+        };
+
+        mediaRecorderRef.current.start();
+        setIsRecording(true);
+        
+        console.log("Started recording in WAV format");
+        toast({
+          title: "Recording started",
+          description: "Speak clearly about the job details",
+        });
+      } catch (fallbackError) {
+        console.error("Error starting recording:", fallbackError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not access microphone or unsupported audio format",
+        });
+      }
     }
   };
 

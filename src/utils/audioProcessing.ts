@@ -22,15 +22,17 @@ export const extractItemsFromText = (text: string) => {
 
 export const processAudioData = async (audioChunks: Blob[]) => {
   console.log("Starting audio processing...");
-  const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+  
+  // Create a blob with explicit MIME type
+  const mimeType = audioChunks[0].type || 'audio/mp3';
+  const audioBlob = new Blob(audioChunks, { type: mimeType });
+  console.log("Audio blob created with type:", mimeType);
 
   try {
     // Create FormData with the audio file
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.wav');
-    formData.append('model', 'whisper-1');
-    formData.append('language', 'en');
-
+    formData.append('audio', audioBlob, `recording.${mimeType.split('/')[1]}`);
+    
     console.log("Sending audio to transcription service...");
     const { data, error } = await supabase.functions.invoke('transcribe-audio', {
       body: formData,

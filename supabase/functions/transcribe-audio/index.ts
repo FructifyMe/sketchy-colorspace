@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,14 +21,11 @@ serve(async (req) => {
       throw new Error('No audio file provided')
     }
 
-    console.log("Received audio file, size:", audioFile.size)
-
-    // Convert the audio file to a buffer
-    const audioBuffer = await audioFile.arrayBuffer()
+    console.log("Received audio file:", audioFile.name, "type:", audioFile.type, "size:", audioFile.size)
 
     // Create FormData for OpenAI API
     const openAiFormData = new FormData()
-    openAiFormData.append('file', new Blob([audioBuffer]), 'audio.wav')
+    openAiFormData.append('file', audioFile)
     openAiFormData.append('model', 'whisper-1')
     openAiFormData.append('language', 'en')
 
