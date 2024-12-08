@@ -34,12 +34,11 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
         const result = await processAudioData(audioChunksRef.current);
         console.log("Processed audio result:", result);
         
-        // Properly separate description and notes from transcriptionText
         const transcriptionData = {
-          description: result.description || '',
+          description: result.transcriptionText || '',
           items: result.items || [],
           clientInfo: result.clientInfo || {},
-          notes: result.notes || ''  // Make sure notes are passed separately
+          notes: result.notes || ''
         };
 
         console.log("Sending transcription data:", transcriptionData);
