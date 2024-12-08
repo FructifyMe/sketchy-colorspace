@@ -100,41 +100,43 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="w-full p-4 md:p-8">
-      <form onSubmit={handleSubmit} className="container max-w-[90%] 2xl:max-w-[2400px] mx-auto space-y-6">
-        <Card className="w-full p-6">
-          <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
-        </Card>
+    <div className="w-full min-h-screen bg-background">
+      <form onSubmit={handleSubmit} className="w-full max-w-[95%] mx-auto py-8">
+        <div className="grid gap-8">
+          <Card className="w-full p-8">
+            <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
+          </Card>
 
-        <Card className="w-full p-6">
-          <ClientInfoForm
-            clientInfo={formData.clientInfo}
-            onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
-          />
-        </Card>
+          <Card className="w-full p-8">
+            <ClientInfoForm
+              clientInfo={formData.clientInfo}
+              onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
+            />
+          </Card>
 
-        <Card className="w-full p-6">
-          <EstimateDescription
-            description={formData.description}
-            onChange={(description) => setFormData(prev => ({ ...prev, description }))}
-          />
-        </Card>
+          <Card className="w-full p-8">
+            <EstimateDescription
+              description={formData.description}
+              onChange={(description) => setFormData(prev => ({ ...prev, description }))}
+            />
+          </Card>
 
-        <Card className="w-full p-6">
-          <EstimateItems items={formData.items} />
-        </Card>
+          <Card className="w-full p-8">
+            <EstimateItems items={formData.items} />
+          </Card>
 
-        <div className="flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/dashboard')}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : 'Save Estimate'}
-          </Button>
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/dashboard')}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Estimate'}
+            </Button>
+          </div>
         </div>
       </form>
     </div>

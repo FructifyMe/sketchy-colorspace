@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
 
 interface EstimateItem {
   name: string;
@@ -13,20 +12,24 @@ interface EstimateItemsProps {
 
 const EstimateItems = ({ items }: EstimateItemsProps) => {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+    <div className="w-full">
+      <h3 className="text-xl font-semibold text-gray-900 mb-6 text-left">
         Items
-      </label>
-      {items.map((item, index) => (
-        <div key={index} className="border p-4 rounded-md mb-2">
-          <p><strong>Item:</strong> {item.name}</p>
-          {item.quantity && <p><strong>Quantity:</strong> {item.quantity}</p>}
-          {item.price && <p><strong>Price:</strong> ${item.price}</p>}
-        </div>
-      ))}
-      {items.length === 0 && (
-        <p className="text-gray-500 italic">No items added yet. Record your voice to add items.</p>
-      )}
+      </h3>
+      <div className="space-y-4">
+        {items.map((item, index) => (
+          <div key={index} className="border p-6 rounded-md text-left">
+            <p className="font-medium">{item.name}</p>
+            <div className="mt-2 text-gray-600">
+              {item.quantity && <p>Quantity: {item.quantity}</p>}
+              {item.price && <p>Price: ${item.price}</p>}
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && (
+          <p className="text-gray-500 italic text-left">No items added yet. Record your voice to add items.</p>
+        )}
+      </div>
     </div>
   );
 };
