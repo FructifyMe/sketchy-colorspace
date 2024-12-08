@@ -67,6 +67,9 @@ serve(async (req) => {
             content: `You are an AI assistant that extracts structured estimate information from transcribed text. 
             Extract the following information in JSON format:
             1. Client information (name, address, phone, email if mentioned)
+              - For email addresses: Always convert spelled out "at" to "@" symbol
+              - Format email addresses properly (e.g., "user@domain.com")
+              - Remove any spaces from email addresses
             2. Description of the work
             3. List of items with quantities and prices
             
@@ -84,9 +87,13 @@ serve(async (req) => {
                 "name": "string",
                 "address": "string",
                 "phone": "string",
-                "email": "string"
+                "email": "string (properly formatted email address)"
               }
-            }`
+            }
+            
+            Example email conversion:
+            Input: "john at gmail dot com" or "john at gmail.com"
+            Output: "john@gmail.com"`
           },
           {
             role: "user",
