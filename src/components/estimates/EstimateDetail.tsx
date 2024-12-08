@@ -65,6 +65,7 @@ const EstimateDetail = () => {
         onToggleEdit={() => setIsEditing(!isEditing)}
         onDelete={() => deleteMutation.mutate()}
         onNavigateBack={() => navigate('/dashboard')}
+        estimateId={estimate.id}
       />
 
       <div className="space-y-6">
