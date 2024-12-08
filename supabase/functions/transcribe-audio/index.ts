@@ -64,12 +64,41 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Extract structured data from the transcribed text. Return a JSON object with:
-              - description: A summary of the work to be done
-              - items: Array of items with name, quantity (if mentioned), and price (if mentioned)
-              - clientInfo: Object with name, address, phone, and email if mentioned
-              
-              Only include fields that are actually mentioned in the text.`
+            content: `Extract structured data from the transcribed text to create a professional estimate. Return a JSON object with the following structure:
+
+{
+  "clientInfo": {
+    "name": "Client's full name",
+    "address": "Complete address",
+    "phone": "Phone number if mentioned",
+    "email": "Email if mentioned"
+  },
+  "estimateDetails": {
+    "estimateNumber": "Auto-generated or mentioned estimate number",
+    "estimateDate": "Current or mentioned date",
+    "dueDate": "Due date if mentioned, otherwise 14 days from estimate date"
+  },
+  "items": [
+    {
+      "quantity": "Numeric value",
+      "description": "Detailed description of the item or service",
+      "unitPrice": "Price per unit in numeric format",
+      "amount": "Total amount (quantity * unitPrice)"
+    }
+  ],
+  "summary": {
+    "subtotal": "Sum of all item amounts",
+    "taxRate": "Tax rate if mentioned (default to 0)",
+    "taxAmount": "Calculated tax amount",
+    "total": "Final total including tax"
+  },
+  "terms": {
+    "paymentTerms": "Payment terms if mentioned (default to 'Payment is due in 14 days')",
+    "additionalNotes": "Any additional notes or special conditions mentioned"
+  }
+}
+
+Extract all numeric values as numbers, not strings. Include all mentioned items and their details. If specific values aren't mentioned, use reasonable defaults based on the context.`
           },
           {
             role: "user",
