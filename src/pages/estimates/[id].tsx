@@ -35,17 +35,8 @@ const EstimateView = () => {
         id: data.id,
         description: data.description || '',
         status: data.status || 'draft',
-        client_info: {
-          name: data.client_info?.name || '',
-          address: data.client_info?.address || '',
-          phone: data.client_info?.phone || '',
-          email: data.client_info?.email || ''
-        },
-        items: (data.items as any[] || []).map(item => ({
-          name: item.name || '',
-          quantity: item.quantity || 1,
-          price: item.price || 0
-        }))
+        client_info: data.client_info as ClientInfo,
+        items: (data.items as EstimateItem[]) || []
       };
 
       return convertedData;

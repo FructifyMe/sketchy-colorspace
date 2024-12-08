@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"; // Added Button import
 import { useToast } from "@/components/ui/use-toast";
 import VoiceRecorder from './VoiceRecorder';
 import ClientInfoForm from './estimates/ClientInfoForm';
