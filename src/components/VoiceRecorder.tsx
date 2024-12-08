@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 import { processAudioData } from '@/utils/audioProcessing';
-import type { TranscriptionResult } from '@/types/estimate';
 
 interface VoiceRecorderProps {
-  onTranscriptionComplete: (data: TranscriptionResult) => void;
+  onTranscriptionComplete: (data: any) => void;
 }
 
 const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }) => {
@@ -23,24 +22,26 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
   const handleStopRecording = async () => {
     stopRecording();
     
-    // Wait a bit for the final chunks to be processed
     setTimeout(async () => {
       setIsProcessing(true);
       
       try {
         if (audioChunksRef.current.length === 0) {
-          throw new Error("No audio data recorded. Please try recording again.");
+          throw new Error("No audio data recorded");
         }
 
+        console.log("Processing audio chunks:", audioChunksRef.current.length);
         const result = await processAudioData(audioChunksRef.current);
+        console.log("Processed audio result:", result);
+        
         onTranscriptionComplete({
           description: result.transcriptionText,
           items: result.items
         });
         
         toast({
-          title: "Processing complete",
-          description: "Your estimate has been created",
+          title: "Success",
+          description: "Audio processed successfully",
         });
       } catch (error) {
         console.error("Error processing audio:", error);
@@ -52,7 +53,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
       } finally {
         setIsProcessing(false);
       }
-    }, 1000); // Wait 1 second for final data
+    }, 1000);
   };
 
   return (
