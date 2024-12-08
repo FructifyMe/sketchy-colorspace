@@ -51,7 +51,6 @@ const EstimateItemsSection = ({
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-medium">{item.name}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{item.description}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium">${(item.price || 0).toFixed(2)}</p>

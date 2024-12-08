@@ -1,14 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
-interface EstimateItem {
-  name: string;
-  description: string;
-  quantity?: number;
-  price?: number;
-}
+import type { EstimateItem } from '@/types/estimate';
 
 interface EstimateItemFormProps {
   item: EstimateItem;
@@ -24,13 +17,7 @@ const EstimateItemForm = ({ item, index, onUpdate, onRemove }: EstimateItemFormP
         <Input
           value={item.name}
           onChange={(e) => onUpdate(index, { ...item, name: e.target.value })}
-          placeholder="Item name"
-        />
-        <Textarea
-          value={item.description}
-          onChange={(e) => onUpdate(index, { ...item, description: e.target.value })}
           placeholder="Item description"
-          className="min-h-[100px]"
         />
         <div className="flex gap-4">
           <Input

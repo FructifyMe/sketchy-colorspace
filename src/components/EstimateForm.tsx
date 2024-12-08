@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import ClientInfoForm from './estimates/ClientInfoForm';
 import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
-import type { ClientInfo } from '@/types/estimate';
+import type { ClientInfo, EstimateItem } from '@/types/estimate';
 import { useEstimateFormSubmit } from '@/hooks/useEstimateFormSubmit';
 
 const EstimateForm: React.FC = () => {
@@ -16,7 +16,7 @@ const EstimateForm: React.FC = () => {
   const { isSubmitting, handleSubmit } = useEstimateFormSubmit();
   const [formData, setFormData] = useState({
     description: '',
-    items: [] as Array<{ name: string; quantity?: number; price?: number }>,
+    items: [] as EstimateItem[],
     clientInfo: {
       name: '',
       address: '',
@@ -29,7 +29,7 @@ const EstimateForm: React.FC = () => {
     console.log("Received transcription data:", data);
     
     const mappedItems = Array.isArray(data.items) ? data.items.map(item => ({
-      name: item.description || '',
+      name: item.description || item.name || '',
       quantity: item.quantity || 1,
       price: item.unitPrice || item.price || 0
     })) : [];

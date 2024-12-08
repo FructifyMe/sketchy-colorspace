@@ -1,11 +1,5 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
-
-interface EstimateItem {
-  name: string;
-  quantity?: number;
-  price?: number;
-}
+import type { EstimateItem } from '@/types/estimate';
 
 interface EstimateItemsProps {
   items: EstimateItem[];
@@ -19,9 +13,12 @@ const EstimateItems = ({ items }: EstimateItemsProps) => {
       </label>
       {items.map((item, index) => (
         <div key={index} className="border p-4 rounded-md mb-2">
-          <p><strong>Item:</strong> {item.name}</p>
+          <p><strong>Description:</strong> {item.name}</p>
           {item.quantity && <p><strong>Quantity:</strong> {item.quantity}</p>}
           {item.price && <p><strong>Price:</strong> ${item.price}</p>}
+          {item.quantity && item.price && (
+            <p><strong>Subtotal:</strong> ${(item.quantity * item.price).toFixed(2)}</p>
+          )}
         </div>
       ))}
       {items.length === 0 && (

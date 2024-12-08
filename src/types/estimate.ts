@@ -2,7 +2,6 @@ import type { Json } from '@/integrations/supabase/types';
 
 export interface EstimateItem {
   name: string;
-  description: string;
   quantity?: number;
   price?: number;
 }
