@@ -39,9 +39,7 @@ export const processAudioData = async (audioChunks: Blob[]) => {
       "onnx-community/whisper-tiny.en",
       { 
         device: "cpu" as const,
-        options: {
-          accessToken: data.apiKey
-        }
+        apiKey: data.apiKey
       }
     );
 
