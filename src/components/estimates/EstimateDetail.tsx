@@ -1,46 +1,20 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from 'date-fns';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/components/ui/use-toast";
 import { useState } from 'react';
-import type { EstimateItem } from '@/types/estimate';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EstimateClientInfo from './EstimateClientInfo';
 import EstimateItemsSection from './EstimateItemsSection';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface Estimate {
-  id: string;
-  description: string | null;
-  client_info: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-  } | null;
-  items: EstimateItem[];
-  status: string;
-  created_at: string;
-}
+import EstimateHeader from './EstimateHeader';
+import { useEstimateOperations } from '@/hooks/useEstimateOperations';
+import type { Estimate } from '@/types/estimateDetail';
 
 const EstimateDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
+  const { deleteMutation, handleUpdateItem, handleRemoveItem, handleAddItem } = useEstimateOperations(id!);
 
   const { data: estimate, isLoading } = useQuery({
     queryKey: ['estimate', id],
@@ -66,107 +40,15 @@ const EstimateDetail = () => {
 
       const parsedData: Estimate = {
         ...data,
-        items: parsedItems
+        items: parsedItems,
+        status: data.status || 'draft',
+        client_info: data.client_info || null
       };
 
       console.log('Fetched estimate:', parsedData);
       return parsedData;
     }
   });
-
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      console.log('Deleting estimate:', id);
-      const { error } = await supabase
-        .from('estimates')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Estimate deleted",
-        description: "The estimate has been successfully deleted",
-      });
-      navigate('/dashboard');
-    },
-    onError: (error) => {
-      console.error('Error deleting estimate:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete the estimate",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async (updatedData: Partial<Estimate>) => {
-      console.log('Updating estimate:', id, updatedData);
-      const { error } = await supabase
-        .from('estimates')
-        .update({
-          ...updatedData,
-          items: updatedData.items // Supabase will handle the JSON serialization
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Estimate updated",
-        description: "Changes have been saved successfully",
-      });
-      queryClient.invalidateQueries({ queryKey: ['estimate', id] });
-    },
-    onError: (error) => {
-      console.error('Error updating estimate:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update the estimate",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleUpdateItem = (index: number, updatedItem: EstimateItem) => {
-    if (!estimate) return;
-    
-    const newItems = [...estimate.items];
-    newItems[index] = updatedItem;
-    
-    updateMutation.mutate({
-      ...estimate,
-      items: newItems,
-    });
-  };
-
-  const handleRemoveItem = (index: number) => {
-    if (!estimate) return;
-    
-    const newItems = estimate.items.filter((_, i) => i !== index);
-    updateMutation.mutate({
-      ...estimate,
-      items: newItems,
-    });
-  };
-
-  const handleAddItem = () => {
-    if (!estimate) return;
-    
-    const newItem: EstimateItem = {
-      name: '',
-      quantity: 1,
-      price: 0
-    };
-    
-    updateMutation.mutate({
-      ...estimate,
-      items: [...estimate.items, newItem],
-    });
-  };
 
   if (isLoading) {
     return <div className="container mx-auto p-6">Loading...</div>;
@@ -184,39 +66,12 @@ const EstimateDetail = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Estimate Details</h2>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate('/dashboard')}>
-            Back to Dashboard
-          </Button>
-          <Button 
-            variant="secondary"
-            onClick={() => setIsEditing(!isEditing)}
-          >
-            {isEditing ? 'Done Editing' : 'Edit'}
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">Delete</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the estimate.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => deleteMutation.mutate()}>
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
+      <EstimateHeader
+        isEditing={isEditing}
+        onToggleEdit={() => setIsEditing(!isEditing)}
+        onDelete={() => deleteMutation.mutate()}
+        onNavigateBack={() => navigate('/dashboard')}
+      />
 
       <div className="space-y-6">
         <EstimateClientInfo clientInfo={estimate.client_info} />
@@ -233,9 +88,9 @@ const EstimateDetail = () => {
         <EstimateItemsSection
           items={estimate.items}
           isEditing={isEditing}
-          onUpdateItem={handleUpdateItem}
-          onRemoveItem={handleRemoveItem}
-          onAddItem={handleAddItem}
+          onUpdateItem={(index, item) => handleUpdateItem(estimate, index, item)}
+          onRemoveItem={(index) => handleRemoveItem(estimate, index)}
+          onAddItem={() => handleAddItem(estimate)}
         />
 
         <Card>
