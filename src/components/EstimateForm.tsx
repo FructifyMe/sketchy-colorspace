@@ -100,27 +100,27 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="mx-8 py-8">
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <Card className="p-8">
+    <div className="w-full px-4 py-8">
+      <form onSubmit={handleSubmit} className="max-w-[2000px] mx-auto space-y-6">
+        <Card className="w-full p-6">
           <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
         </Card>
 
-        <Card className="p-8">
+        <Card className="w-full p-6">
           <ClientInfoForm
             clientInfo={formData.clientInfo}
             onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
           />
         </Card>
 
-        <Card className="p-8">
+        <Card className="w-full p-6">
           <EstimateDescription
             description={formData.description}
             onChange={(description) => setFormData(prev => ({ ...prev, description }))}
           />
         </Card>
 
-        <Card className="p-8">
+        <Card className="w-full p-6">
           <EstimateItems items={formData.items} />
         </Card>
 
