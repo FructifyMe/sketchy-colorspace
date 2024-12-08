@@ -8,7 +8,7 @@ import ClientInfoForm from './estimates/ClientInfoForm';
 import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
 import { supabase } from "@/integrations/supabase/client";
-import type { ClientInfo } from '@/types/estimate';
+import type { ClientInfo, toSupabaseJson } from '@/types/estimate';
 
 const EstimateForm = () => {
   const navigate = useNavigate();
@@ -69,8 +69,8 @@ const EstimateForm = () => {
         .insert({
           user_id: user.id,
           description: formData.description,
-          items: formData.items,
-          client_info: formData.clientInfo,
+          items: toSupabaseJson(formData.items),
+          client_info: toSupabaseJson(formData.clientInfo),
           status: 'draft'
         })
         .select()
