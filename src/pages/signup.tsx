@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import AuthLayout from "@/components/AuthLayout";
 import { useToast } from "@/hooks/use-toast";
+import { AuthChangeEvent } from "@supabase/supabase-js";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const SignupPage = () => {
     checkUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       console.log("Auth state changed:", event, session);
       
       if (event === "SIGNED_IN" || event === "SIGNED_UP") {
