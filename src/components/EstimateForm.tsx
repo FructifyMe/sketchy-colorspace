@@ -24,10 +24,19 @@ const EstimateForm = () => {
   const handleTranscriptionComplete = (data: any) => {
     console.log("Received transcription data:", data);
     
+    // Map the transcribed items to the correct format
+    const mappedItems = Array.isArray(data.items) ? data.items.map(item => ({
+      name: item.description || '',
+      quantity: item.quantity || 1,
+      price: item.unitPrice || item.price || 0
+    })) : [];
+
+    console.log("Mapped items:", mappedItems);
+    
     // Update form with transcribed data
     setFormData(prev => ({
       description: data.description || '',
-      items: Array.isArray(data.items) ? data.items : [],
+      items: mappedItems,
       clientInfo: {
         ...prev.clientInfo,
         name: data.clientInfo?.name || '',
