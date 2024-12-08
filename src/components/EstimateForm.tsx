@@ -1,4 +1,4 @@
-import React from 'react';
+import { Toaster } from "@/components/ui/toaster";
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,7 +8,8 @@ import ClientInfoForm from './estimates/ClientInfoForm';
 import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
 import { supabase } from "@/integrations/supabase/client";
-import type { ClientInfo, toSupabaseJson } from '@/types/estimate';
+import type { ClientInfo } from '@/types/estimate';
+import { toSupabaseJson } from '@/types/estimate';
 
 const EstimateForm = () => {
   const navigate = useNavigate();
@@ -85,8 +86,8 @@ const EstimateForm = () => {
         description: "Estimate saved successfully",
       });
 
-      // Navigate to the estimate view page
-      navigate(`/estimates/${data.id}`);
+      // Navigate back to dashboard instead of a non-existent route
+      navigate('/dashboard');
     } catch (error) {
       console.error("Error saving estimate:", error);
       toast({

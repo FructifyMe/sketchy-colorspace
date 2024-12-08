@@ -19,7 +19,6 @@ export interface EstimateData {
   clientInfo: ClientInfo;
 }
 
-// Helper type to convert our frontend types to Supabase-compatible JSON
 export const toSupabaseJson = (data: any): Json => {
   return JSON.parse(JSON.stringify(data));
 };
