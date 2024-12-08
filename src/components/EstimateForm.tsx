@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/toaster";
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,15 +7,14 @@ import { useToast } from "@/components/ui/use-toast";
 import ClientInfoForm from './estimates/ClientInfoForm';
 import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
-import { supabase } from "@/integrations/supabase/client";
 import type { ClientInfo } from '@/types/estimate';
-import { toSupabaseJson } from '@/types/estimate';
+import { useEstimateFormSubmit } from '@/hooks/useEstimateFormSubmit';
 
-const EstimateForm = () => {
+const EstimateForm: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [formData, setFormData] = React.useState({
+  const { isSubmitting, handleSubmit } = useEstimateFormSubmit();
+  const [formData, setFormData] = useState({
     description: '',
     items: [] as Array<{ name: string; quantity?: number; price?: number }>,
     clientInfo: {
@@ -55,49 +54,9 @@ const EstimateForm = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      console.log("Saving estimate:", formData);
-      
-      const { data, error } = await supabase
-        .from('estimates')
-        .insert({
-          user_id: user.id,
-          description: formData.description,
-          items: toSupabaseJson(formData.items),
-          client_info: toSupabaseJson(formData.clientInfo),
-          status: 'draft'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      console.log("Estimate saved successfully:", data);
-      
-      toast({
-        title: "Success",
-        description: "Estimate saved successfully",
-      });
-
-      // Navigate back to dashboard instead of a non-existent route
-      navigate('/dashboard');
-    } catch (error) {
-      console.error("Error saving estimate:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save estimate. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await handleSubmit(formData);
   };
 
   return (
@@ -114,7 +73,7 @@ const EstimateForm = () => {
       
       <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
       
-      <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+      <form onSubmit={onSubmit} className="space-y-6 mt-6">
         <Card className="p-4">
           <div className="space-y-4">
             <ClientInfoForm
