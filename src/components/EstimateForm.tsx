@@ -19,7 +19,8 @@ const EstimateForm = () => {
       address: '',
       phone: '',
       email: ''
-    } as EstimateClientInfo
+    } as EstimateClientInfo,
+    notes: '' // Added notes field to initial state
   });
 
   const handleTranscriptionComplete = (data: any) => {
@@ -36,6 +37,7 @@ const EstimateForm = () => {
     setFormData(prev => ({
       description: data.description || '',
       items: mappedItems,
+      notes: data.notes || '', // Added notes from transcription
       clientInfo: {
         ...prev.clientInfo,
         name: data.clientInfo?.name || '',
