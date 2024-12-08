@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import Index from "./pages/Index";
 import SignupPage from "./pages/signup";
+import SigninPage from "./pages/signin";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +42,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/signin" element={<div>Sign In Page - To be implemented</div>} />
+          <Route path="/signin" element={<SigninPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route 
             path="/dashboard" 

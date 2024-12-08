@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import AuthLayout from "@/components/AuthLayout";
 
-const SignupPage = () => {
+const SigninPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,15 +34,15 @@ const SignupPage = () => {
     <AuthLayout>
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900">
-          Create your account
+          Sign in to your account
         </h2>
         <p className="mt-2 text-sm text-gray-600">
           Or{" "}
           <button
-            onClick={() => navigate("/signin")}
+            onClick={() => navigate("/signup")}
             className="font-medium text-primary hover:text-primary/80"
           >
-            sign in to your account
+            create a new account
           </button>
         </p>
       </div>
@@ -62,9 +62,10 @@ const SignupPage = () => {
         theme="light"
         providers={[]}
         redirectTo={`${window.location.origin}/dashboard`}
+        view="sign_in"
       />
     </AuthLayout>
   );
 };
 
-export default SignupPage;
+export default SigninPage;
