@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, FileEdit, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Database } from "@/integrations/supabase/types";
+import CreateTemplateDialog from "@/components/CreateTemplateDialog";
 
 type Template = Database['public']['Tables']['templates']['Row'] & {
   template_data: {
@@ -18,6 +19,7 @@ type Template = Database['public']['Tables']['templates']['Row'] & {
 };
 
 const DashboardPage = () => {
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { toast } = useToast();
   
   const { data: templates, isLoading, error } = useQuery({
@@ -33,13 +35,7 @@ const DashboardPage = () => {
         throw error;
       }
       
-      // Assert the template_data structure
-      const typedData = data?.map(template => ({
-        ...template,
-        template_data: template.template_data as Template['template_data']
-      }));
-      
-      return typedData as Template[];
+      return data as Template[];
     }
   });
 
@@ -48,22 +44,6 @@ const DashboardPage = () => {
     toast({
       title: "Template selected",
       description: `You selected the ${template.name} template`,
-    });
-  };
-
-  const handleCreateTemplate = () => {
-    console.log("Creating new template");
-    toast({
-      title: "Coming soon",
-      description: "Template creation will be available soon!",
-    });
-  };
-
-  const handleEditTemplate = (template: Template) => {
-    console.log("Editing template:", template);
-    toast({
-      title: "Coming soon",
-      description: "Template editing will be available soon!",
     });
   };
 
@@ -109,7 +89,7 @@ const DashboardPage = () => {
             Manage and create new templates for your estimates
           </p>
         </div>
-        <Button onClick={handleCreateTemplate} className="gap-2">
+        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
           New Template
         </Button>
@@ -138,7 +118,7 @@ const DashboardPage = () => {
           <p className="text-muted-foreground mt-2">
             Create your first template to get started
           </p>
-          <Button onClick={handleCreateTemplate} className="mt-4 gap-2">
+          <Button onClick={() => setCreateDialogOpen(true)} className="mt-4 gap-2">
             <Plus className="h-4 w-4" />
             Create Template
           </Button>
@@ -157,7 +137,7 @@ const DashboardPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleEditTemplate(template)}
+                      onClick={() => console.log("Edit template:", template)}
                     >
                       <FileEdit className="h-4 w-4" />
                     </Button>
@@ -188,6 +168,11 @@ const DashboardPage = () => {
           ))}
         </div>
       )}
+
+      <CreateTemplateDialog 
+        open={createDialogOpen} 
+        onOpenChange={setCreateDialogOpen} 
+      />
     </div>
   );
 };
