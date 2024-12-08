@@ -35,83 +35,102 @@ serve(async (req) => {
     let items = [];
     let clientInfo = {};
 
-    ws.onopen = () => {
-      console.log("Connected to OpenAI Realtime API");
-      
-      // Send session configuration
-      ws.send(JSON.stringify({
-        type: 'session.update',
-        session: {
-          modalities: ["text", "audio"],
-          input_audio_format: "pcm16",
-          output_audio_format: "pcm16",
-          input_audio_transcription: {
-            model: "whisper-1"
-          },
-          turn_detection: {
-            type: "server_vad",
-            threshold: 0.5,
-            prefix_padding_ms: 300,
-            silence_duration_ms: 1000
-          }
-        }
-      }));
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        ws.close();
+        reject(new Error('Transcription timeout'));
+      }, 30000); // 30 second timeout
 
-      // Send audio data
-      const reader = audioFile.stream().getReader();
-      reader.read().then(function processAudio({done, value}) {
-        if (done) {
-          console.log("Finished sending audio data");
-          return;
-        }
-
+      ws.onopen = () => {
+        console.log("Connected to OpenAI Realtime API");
+        
+        // Send session configuration
         ws.send(JSON.stringify({
-          type: 'input_audio_buffer.append',
-          audio: btoa(String.fromCharCode.apply(null, value))
+          type: 'session.update',
+          session: {
+            modalities: ["text", "audio"],
+            input_audio_format: "pcm16",
+            output_audio_format: "pcm16",
+            input_audio_transcription: {
+              model: "whisper-1"
+            },
+            turn_detection: {
+              type: "server_vad",
+              threshold: 0.5,
+              prefix_padding_ms: 300,
+              silence_duration_ms: 1000
+            }
+          }
         }));
 
-        return reader.read().then(processAudio);
-      });
-    };
+        // Send audio data
+        const reader = audioFile.stream().getReader();
+        reader.read().then(function processAudio({done, value}) {
+          if (done) {
+            console.log("Finished sending audio data");
+            return;
+          }
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log("Received message from OpenAI:", data.type);
+          ws.send(JSON.stringify({
+            type: 'input_audio_buffer.append',
+            audio: btoa(String.fromCharCode.apply(null, value))
+          }));
 
-      if (data.type === 'response.audio_transcript.delta') {
-        transcriptionResult += data.delta;
-      }
-    };
+          return reader.read().then(processAudio);
+        });
+      };
 
-    // Wait for transcription to complete
-    await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('Transcription timeout'));
-      }, 30000);
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log("Received message from OpenAI:", data.type);
+
+        if (data.type === 'response.audio_transcript.delta') {
+          transcriptionResult += data.delta;
+        }
+      };
 
       ws.onclose = () => {
         clearTimeout(timeout);
-        resolve(null);
+        console.log("WebSocket closed, final transcription:", transcriptionResult);
+        
+        // Extract information from transcription
+        const extractedData = {
+          text: transcriptionResult,
+          items: items,
+          clientInfo: clientInfo
+        };
+        
+        resolve(new Response(
+          JSON.stringify(extractedData),
+          { 
+            headers: { 
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          },
+        ));
       };
-    });
 
-    // Extract information from transcription
-    const extractedData = await extractInformationWithGPT(transcriptionResult);
-    
-    return new Response(
-      JSON.stringify({
-        text: transcriptionResult,
-        ...extractedData
-      }),
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json',
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+        clearTimeout(timeout);
+        reject(error);
+      };
+    }).catch(error => {
+      console.error("Error in transcription:", error);
+      return new Response(
+        JSON.stringify({ error: error.message }),
+        { 
+          status: 400,
+          headers: { 
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
         },
-      },
-    )
+      );
+    });
   } catch (error) {
-    console.error("Error processing request:", error)
+    console.error("Error processing request:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
@@ -121,48 +140,6 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
       },
-    )
+    );
   }
-})
-
-async function extractInformationWithGPT(transcription: string) {
-  const prompt = `
-    Extract relevant information from this transcription for an estimate.
-    Format the response as a JSON object with these fields:
-    - description: A clear summary of the work to be done
-    - items: Array of items, each with name, quantity (if mentioned), and price (if mentioned)
-    - clientInfo: Object with client's name, address, phone, and email if mentioned
-    
-    Transcription: "${transcription}"
-    
-    Return only the JSON object, no other text.
-  `;
-
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{
-          role: "user",
-          content: prompt
-        }],
-        temperature: 0.3,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`GPT API error: ${await response.text()}`);
-    }
-
-    const result = await response.json();
-    return JSON.parse(result.choices[0].message.content);
-  } catch (error) {
-    console.error("Error extracting information with GPT:", error);
-    throw error;
-  }
-}
+});
