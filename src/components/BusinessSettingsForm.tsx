@@ -23,6 +23,8 @@ const BusinessSettingsForm = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      console.log("Fetching business settings for user:", user.id);
+
       const { data, error } = await supabase
         .from('business_settings')
         .select('*')
@@ -30,6 +32,7 @@ const BusinessSettingsForm = () => {
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
+      console.log("Fetched business settings:", data);
       return data as BusinessSettings | null;
     }
   });
@@ -98,12 +101,33 @@ const BusinessSettingsForm = () => {
 
       console.log("Submitting business settings:", { ...formData, user_id: user.id });
 
-      const { error } = await supabase
+      // First try to get existing settings
+      const { data: existingSettings } = await supabase
         .from('business_settings')
-        .upsert({
-          user_id: user.id,
-          ...formData
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      console.log("Existing settings:", existingSettings);
+
+      let error;
+      if (existingSettings) {
+        // Update existing settings
+        const { error: updateError } = await supabase
+          .from('business_settings')
+          .update(formData)
+          .eq('user_id', user.id);
+        error = updateError;
+      } else {
+        // Insert new settings
+        const { error: insertError } = await supabase
+          .from('business_settings')
+          .insert({
+            user_id: user.id,
+            ...formData
+          });
+        error = insertError;
+      }
 
       if (error) throw error;
 
