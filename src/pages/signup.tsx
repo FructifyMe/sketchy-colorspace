@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import AuthLayout from "@/components/AuthLayout";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -23,15 +23,39 @@ const SignupPage = () => {
     checkUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", _event, session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session);
+      
+      if (event === 'SIGNED_UP') {
+        console.log("User signed up:", session?.user);
+        // Check if profile was created
+        if (session?.user?.id) {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          console.log("Profile check after signup:", { profile, error });
+          
+          if (error) {
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "There was an error creating your profile. Please try again.",
+            });
+            return;
+          }
+        }
+      }
+
       if (session) {
         navigate("/dashboard");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <AuthLayout>
