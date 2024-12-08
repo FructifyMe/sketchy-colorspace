@@ -57,6 +57,39 @@ export type Database = {
         }
         Relationships: []
       }
+      estimates: {
+        Row: {
+          client_info: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          items: Json | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_info?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          items?: Json | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_info?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          items?: Json | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

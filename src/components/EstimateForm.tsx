@@ -7,11 +7,13 @@ import { useToast } from "@/components/ui/use-toast";
 import ClientInfoForm from './estimates/ClientInfoForm';
 import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
+import { supabase } from "@/integrations/supabase/client";
 import type { ClientInfo } from '@/types/estimate';
 
 const EstimateForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [formData, setFormData] = React.useState({
     description: '',
     items: [] as Array<{ name: string; quantity?: number; price?: number }>,
@@ -26,7 +28,6 @@ const EstimateForm = () => {
   const handleTranscriptionComplete = (data: any) => {
     console.log("Received transcription data:", data);
     
-    // Map the transcribed items to the correct format
     const mappedItems = Array.isArray(data.items) ? data.items.map(item => ({
       name: item.description || '',
       quantity: item.quantity || 1,
@@ -35,7 +36,6 @@ const EstimateForm = () => {
 
     console.log("Mapped items:", mappedItems);
     
-    // Update form with transcribed data
     setFormData(prev => ({
       description: data.description || '',
       items: mappedItems,
@@ -54,13 +54,49 @@ const EstimateForm = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting estimate:", formData);
-    toast({
-      title: "Success",
-      description: "Estimate saved successfully",
-    });
+    setIsSubmitting(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      console.log("Saving estimate:", formData);
+      
+      const { data, error } = await supabase
+        .from('estimates')
+        .insert({
+          user_id: user.id,
+          description: formData.description,
+          items: formData.items,
+          client_info: formData.clientInfo,
+          status: 'draft'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      console.log("Estimate saved successfully:", data);
+      
+      toast({
+        title: "Success",
+        description: "Estimate saved successfully",
+      });
+
+      // Navigate to the estimate view page
+      navigate(`/estimates/${data.id}`);
+    } catch (error) {
+      console.error("Error saving estimate:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save estimate. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -94,8 +130,8 @@ const EstimateForm = () => {
           </div>
         </Card>
 
-        <Button type="submit" className="w-full">
-          Save Estimate
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Estimate'}
         </Button>
       </form>
     </div>
