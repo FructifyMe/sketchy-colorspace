@@ -49,7 +49,7 @@ serve(async (req) => {
     const transcribedText = transcriptionResult.text;
     console.log("Transcription result:", transcribedText);
 
-    // Step 2: Process with GPT-4 using enhanced prompt
+    // Step 2: Process with GPT-4 using enhanced prompt for templateless approach
     console.log("Step 2: Processing with GPT-4...");
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -63,56 +63,77 @@ serve(async (req) => {
           {
             role: "system",
             content: `You are an AI assistant specialized in creating detailed estimates from verbal descriptions. 
-            Your task is to analyze the input and structure it into a comprehensive estimate with the following sections:
+            Analyze the input and create a comprehensive estimate with the following structure:
 
             1. Project Overview:
                - Extract a clear, detailed description of the work
-               - Identify the type of work (e.g., construction, design, consulting)
-               - Note any specific requirements or conditions
+               - Identify and categorize the type of work (e.g., Construction, Landscaping, Design, etc.)
+               - Note any specific requirements, conditions, or constraints
+               - Identify any permits or licenses needed
 
             2. Client Information:
-               - Name (required)
-               - Contact details (address, phone, email)
-               - Any specific client requirements or preferences
-               - Format email addresses properly (convert "at" to "@")
+               - Name (required if mentioned)
+               - Contact details (address, phone, email if provided)
+               - Any specific client preferences or requirements
+               - Format email addresses properly (convert spoken "at" to "@")
+               - Any relevant property details
 
-            3. Line Items:
-               - Break down the work into specific items
-               - For each item, identify:
-                 * Description (clear and specific)
-                 * Quantity (with units if mentioned)
-                 * Unit price
-                 * Any specific details or requirements
-               - Group similar items together
-               - Include materials and labor separately when mentioned
+            3. Line Items (break down into logical categories):
+               For each item identify:
+               - Category (group similar items)
+               - Description (be specific and detailed)
+               - Quantity (with units)
+               - Unit price (if mentioned)
+               - Labor costs (separate from materials)
+               - Any specific requirements or notes
+               
+            4. Timeline and Scheduling:
+               - Start date (if mentioned)
+               - Duration estimates
+               - Key milestones or phases
+               - Any scheduling constraints
+               - Season-specific considerations
 
-            4. Timeline and Scheduling (if mentioned):
-               - Start date
-               - Duration
-               - Key milestones
+            5. Additional Considerations:
+               - Required materials
+               - Equipment needed
+               - Safety requirements
+               - Warranty information
+               - Maintenance recommendations
 
-            Return the data in this exact format:
+            Return a JSON object with this exact structure:
             {
               "description": "Comprehensive project description",
-              "projectType": "Type of work",
+              "projectType": "Category of work",
               "items": [
                 {
+                  "category": "Logical grouping",
                   "name": "Item description",
                   "quantity": number,
                   "price": number,
-                  "details": "Additional details"
+                  "isLabor": boolean,
+                  "notes": "Additional details"
                 }
               ],
               "clientInfo": {
                 "name": "string",
                 "address": "string",
                 "phone": "string",
-                "email": "string"
+                "email": "string",
+                "propertyDetails": "string"
               },
               "timeline": {
                 "startDate": "string",
                 "duration": "string",
-                "milestones": []
+                "milestones": ["string"],
+                "constraints": "string"
+              },
+              "additionalDetails": {
+                "materials": ["string"],
+                "equipment": ["string"],
+                "safety": ["string"],
+                "warranty": "string",
+                "maintenance": "string"
               }
             }`
           },
@@ -151,7 +172,8 @@ serve(async (req) => {
         projectType: structuredData.projectType,
         items: structuredData.items,
         clientInfo: structuredData.clientInfo,
-        timeline: structuredData.timeline
+        timeline: structuredData.timeline,
+        additionalDetails: structuredData.additionalDetails
       }),
       { 
         headers: { 
