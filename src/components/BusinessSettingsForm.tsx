@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,8 @@ const BusinessSettingsForm = () => {
       const { data, error } = await supabase
         .from('business_settings')
         .select('*')
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
       return data as BusinessSettings | null;
@@ -32,10 +33,21 @@ const BusinessSettingsForm = () => {
   });
 
   const [formData, setFormData] = useState<BusinessSettings>({
-    company_name: settings?.company_name || '',
-    company_logo: settings?.company_logo || '',
-    company_header: settings?.company_header || '',
+    company_name: '',
+    company_logo: '',
+    company_header: '',
   });
+
+  // Update form data when settings are loaded
+  useEffect(() => {
+    if (settings) {
+      setFormData({
+        company_name: settings.company_name || '',
+        company_logo: settings.company_logo || '',
+        company_header: settings.company_header || '',
+      });
+    }
+  }, [settings]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +56,8 @@ const BusinessSettingsForm = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
+
+      console.log("Submitting business settings:", { ...formData, user_id: user.id });
 
       const { error } = await supabase
         .from('business_settings')
