@@ -100,7 +100,7 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="container mx-auto px-8 py-8 max-w-[1400px]">
+    <div className="mx-8 py-8">
       <form onSubmit={handleSubmit} className="space-y-8">
         <Card className="p-8">
           <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
@@ -114,14 +114,14 @@ const EstimateForm = () => {
         </Card>
 
         <Card className="p-8">
-          <EstimateItems items={formData.items} />
-        </Card>
-
-        <Card className="p-8">
           <EstimateDescription
             description={formData.description}
             onChange={(description) => setFormData(prev => ({ ...prev, description }))}
           />
+        </Card>
+
+        <Card className="p-8">
+          <EstimateItems items={formData.items} />
         </Card>
 
         <div className="flex justify-end gap-4">
