@@ -1,40 +1,42 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import "https://deno.land/x/xhr@0.1.0/mod.ts"
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-console.log("Transcribe audio function starting...")
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const formData = await req.formData()
-    const audioFile = formData.get('audio') as File
+    const formData = await req.formData();
+    const audioFile = formData.get('audio') as File;
     
     if (!audioFile) {
-      throw new Error('No audio file provided')
+      throw new Error('No audio file provided');
     }
 
-    console.log("Received audio file:", audioFile.name, "type:", audioFile.type, "size:", audioFile.size)
+    console.log("Received audio file:", audioFile.name, "type:", audioFile.type, "size:", audioFile.size);
 
     // Create a new FormData for the Whisper API
-    const whisperFormData = new FormData()
-    whisperFormData.append('file', audioFile)
-    whisperFormData.append('model', 'whisper-1')  // Explicitly set the Whisper model
+    const whisperFormData = new FormData();
+    whisperFormData.append('file', audioFile);
+    whisperFormData.append('model', 'whisper-1');
+    whisperFormData.append('response_format', 'json');
+    whisperFormData.append('language', 'en');
 
     // Step 1: Transcribe audio to text using Whisper
-    console.log("Step 1: Transcribing audio with Whisper...")
+    console.log("Step 1: Transcribing audio with Whisper...");
     const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
       },
       body: whisperFormData
     });
@@ -54,7 +56,7 @@ serve(async (req) => {
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
