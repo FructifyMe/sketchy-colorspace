@@ -43,7 +43,12 @@ export const useEstimateOperations = (id: string) => {
           items: toSupabaseJson(updatedData.items),
           client_info: updatedData.client_info ? toSupabaseJson(updatedData.client_info) : null,
           description: updatedData.description,
-          status: updatedData.status
+          status: updatedData.status,
+          terms_and_conditions: updatedData.terms_and_conditions,
+          payment_policy: updatedData.payment_policy,
+          notes: updatedData.notes,
+          show_terms: updatedData.show_terms,
+          show_payment_policy: updatedData.show_payment_policy
         })
         .eq('id', id);
 

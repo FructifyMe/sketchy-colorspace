@@ -35,6 +35,12 @@ export interface Estimate {
   updated_at: string;
   user_id: string;
   business_settings: BusinessSettings;
+  terms_and_conditions: string | null;
+  payment_policy: string | null;
+  expiration_date: string | null;
+  notes: string | null;
+  show_terms: boolean;
+  show_payment_policy: boolean;
 }
 
 // Helper function to parse client info from Supabase JSON

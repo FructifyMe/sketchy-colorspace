@@ -62,9 +62,15 @@ export type Database = {
           client_info: Json | null
           created_at: string
           description: string | null
+          expiration_date: string | null
           id: string
           items: Json | null
+          notes: string | null
+          payment_policy: string | null
+          show_payment_policy: boolean | null
+          show_terms: boolean | null
           status: string | null
+          terms_and_conditions: string | null
           updated_at: string
           user_id: string
         }
@@ -72,9 +78,15 @@ export type Database = {
           client_info?: Json | null
           created_at?: string
           description?: string | null
+          expiration_date?: string | null
           id?: string
           items?: Json | null
+          notes?: string | null
+          payment_policy?: string | null
+          show_payment_policy?: boolean | null
+          show_terms?: boolean | null
           status?: string | null
+          terms_and_conditions?: string | null
           updated_at?: string
           user_id: string
         }
@@ -82,9 +94,15 @@ export type Database = {
           client_info?: Json | null
           created_at?: string
           description?: string | null
+          expiration_date?: string | null
           id?: string
           items?: Json | null
+          notes?: string | null
+          payment_policy?: string | null
+          show_payment_policy?: boolean | null
+          show_terms?: boolean | null
           status?: string | null
+          terms_and_conditions?: string | null
           updated_at?: string
           user_id?: string
         }

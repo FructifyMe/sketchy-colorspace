@@ -8,6 +8,7 @@ import EstimateItemsSection from './EstimateItemsSection';
 import EstimateHeader from './EstimateHeader';
 import EstimatePrintHeader from './EstimatePrintHeader';
 import EstimateStatus from './EstimateStatus';
+import EstimateAdditionalDetails from './EstimateAdditionalDetails';
 import { useEstimateOperations } from '@/hooks/useEstimateOperations';
 import type { Estimate } from '@/types/estimateDetail';
 import { parseClientInfo, parseItems } from '@/types/estimateDetail';
@@ -17,7 +18,7 @@ const EstimateDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const { deleteMutation, handleUpdateItem, handleRemoveItem, handleAddItem } = useEstimateOperations(id!);
+  const { deleteMutation, updateMutation, handleUpdateItem, handleRemoveItem, handleAddItem } = useEstimateOperations(id!);
 
   const handleDownloadPDF = () => {
     console.log('Downloading PDF directly...');
@@ -33,6 +34,25 @@ const EstimateDetail = () => {
     };
     
     html2pdf().set(opt).from(element).save();
+  };
+
+  const handleUpdateDetails = (updates: {
+    terms?: string;
+    paymentPolicy?: string;
+    notes?: string;
+    showTerms?: boolean;
+    showPaymentPolicy?: boolean;
+  }) => {
+    if (!estimate) return;
+
+    updateMutation.mutate({
+      ...estimate,
+      terms_and_conditions: updates.terms ?? estimate.terms_and_conditions,
+      payment_policy: updates.paymentPolicy ?? estimate.payment_policy,
+      notes: updates.notes ?? estimate.notes,
+      show_terms: updates.showTerms ?? estimate.show_terms,
+      show_payment_policy: updates.showPaymentPolicy ?? estimate.show_payment_policy,
+    });
   };
 
   const { data: estimate, isLoading, error } = useQuery({
@@ -162,6 +182,17 @@ const EstimateDetail = () => {
         <EstimateStatus 
           status={estimate.status} 
           createdAt={estimate.created_at} 
+        />
+
+        <EstimateAdditionalDetails
+          terms={estimate.terms_and_conditions}
+          paymentPolicy={estimate.payment_policy}
+          notes={estimate.notes}
+          showTerms={estimate.show_terms}
+          showPaymentPolicy={estimate.show_payment_policy}
+          expirationDate={estimate.expiration_date}
+          isEditing={isEditing}
+          onUpdate={handleUpdateDetails}
         />
       </div>
     </div>
