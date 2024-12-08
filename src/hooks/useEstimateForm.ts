@@ -47,16 +47,18 @@ export const useEstimateForm = () => {
   const handleTranscriptionComplete = (data: TranscriptionResult) => {
     console.log("Handling transcription data:", data);
     
-    setEstimateData(prev => ({
-      description: data.description || prev.description,
-      items: data.items?.length ? data.items : prev.items,
-      clientInfo: data.clientInfo ? {
-        ...prev.clientInfo,
-        ...data.clientInfo
-      } : prev.clientInfo
-    }));
+    // Create a new state object with all the updated data
+    const newEstimateData = {
+      description: data.description || estimateData.description,
+      items: data.items?.length ? data.items : estimateData.items,
+      clientInfo: {
+        ...estimateData.clientInfo,
+        ...(data.clientInfo || {})
+      }
+    };
 
-    console.log("Updated estimate data:", estimateData);
+    console.log("Setting new estimate data:", newEstimateData);
+    setEstimateData(newEstimateData);
 
     toast({
       title: "Transcription complete",
@@ -65,17 +67,20 @@ export const useEstimateForm = () => {
   };
 
   const handleUpdateItem = (index: number, updatedItem: EstimateData['items'][0]) => {
+    console.log("Updating item at index:", index, "with:", updatedItem);
     const newItems = [...estimateData.items];
     newItems[index] = updatedItem;
     setEstimateData(prev => ({ ...prev, items: newItems }));
   };
 
   const handleRemoveItem = (index: number) => {
+    console.log("Removing item at index:", index);
     const newItems = estimateData.items.filter((_, i) => i !== index);
     setEstimateData(prev => ({ ...prev, items: newItems }));
   };
 
   const handleAddItem = () => {
+    console.log("Adding new item");
     setEstimateData(prev => ({
       ...prev,
       items: [...prev.items, { name: '', quantity: undefined, price: undefined }]
