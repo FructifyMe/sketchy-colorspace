@@ -16,9 +16,9 @@ const EstimateItems = ({ items }: EstimateItemsProps) => {
       <h3 className="text-xl font-semibold text-gray-900 mb-6 text-left">
         Items
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         {items.map((item, index) => (
-          <div key={index} className="border p-6 rounded-md text-left">
+          <div key={index} className="border p-6 rounded-md text-left w-full">
             <p className="font-medium">{item.name}</p>
             <div className="mt-2 text-gray-600">
               {item.quantity && <p>Quantity: {item.quantity}</p>}

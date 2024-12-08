@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import VoiceRecorder from './VoiceRecorder';
@@ -100,30 +99,30 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-background">
-      <form onSubmit={handleSubmit} className="w-full max-w-full px-4 py-8">
-        <div className="grid gap-8">
-          <Card className="w-full p-8">
+    <div className="w-full min-h-screen">
+      <form onSubmit={handleSubmit} className="w-full p-4">
+        <div className="space-y-8 w-full">
+          <div className="w-full p-6 bg-white rounded-lg shadow">
             <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
-          </Card>
+          </div>
 
-          <Card className="w-full p-8">
+          <div className="w-full p-6 bg-white rounded-lg shadow">
             <ClientInfoForm
               clientInfo={formData.clientInfo}
               onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
             />
-          </Card>
+          </div>
 
-          <Card className="w-full p-8">
+          <div className="w-full p-6 bg-white rounded-lg shadow">
             <EstimateDescription
               description={formData.description}
               onChange={(description) => setFormData(prev => ({ ...prev, description }))}
             />
-          </Card>
+          </div>
 
-          <Card className="w-full p-8">
+          <div className="w-full p-6 bg-white rounded-lg shadow">
             <EstimateItems items={formData.items} />
-          </Card>
+          </div>
 
           <div className="flex justify-end gap-4">
             <Button

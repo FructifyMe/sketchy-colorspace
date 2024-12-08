@@ -18,7 +18,7 @@ const ClientInfoForm = ({ clientInfo, onChange }: ClientInfoFormProps) => {
   return (
     <div className="w-full">
       <h3 className="text-xl font-semibold text-gray-900 mb-6 text-left">Client Information</h3>
-      <div className="grid grid-cols-2 gap-x-8 gap-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         <div className="w-full">
           <label className="block text-sm font-medium text-gray-700 mb-2 text-left">Name</label>
           <Input
