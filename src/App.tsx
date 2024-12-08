@@ -8,6 +8,7 @@ import { supabase } from "./integrations/supabase/client";
 import Index from "./pages/Index";
 import SignupPage from "./pages/signup";
 import SigninPage from "./pages/signin";
+import DashboardPage from "./pages/dashboard";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +49,7 @@ const App = () => (
             path="/dashboard" 
             element={
               <PrivateRoute>
-                <div>Dashboard - To be implemented</div>
+                <DashboardPage />
               </PrivateRoute>
             } 
           />
