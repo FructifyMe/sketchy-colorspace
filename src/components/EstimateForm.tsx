@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import ClientInfoForm from './estimates/ClientInfoForm';
 import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
-import type { ClientInfo, EstimateItem } from '@/types/estimate';
+import type { EstimateItem, EstimateClientInfo } from '@/types/estimateDetail';
 import { useEstimateFormSubmit } from '@/hooks/useEstimateFormSubmit';
 
 const EstimateForm: React.FC = () => {
@@ -22,7 +22,7 @@ const EstimateForm: React.FC = () => {
       address: '',
       phone: '',
       email: ''
-    } as ClientInfo
+    } as EstimateClientInfo
   });
 
   const handleTranscriptionComplete = (data: any) => {

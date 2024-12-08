@@ -1,12 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import EstimateItemForm from '../EstimateItemForm';
-
-interface EstimateItem {
-  name: string;
-  quantity?: number;
-  price?: number;
-}
+import type { EstimateItem } from '@/types/estimateDetail';
 
 interface EstimateItemsListProps {
   items: EstimateItem[];
@@ -30,7 +25,7 @@ const EstimateItemsList = ({
         <div key={index} className="space-y-4">
           <h4 className="font-medium text-gray-700">{section.name}</h4>
           <EstimateItemForm
-            item={items[index] || { name: '', quantity: undefined, price: undefined }}
+            item={items[index] || { name: '', quantity: 0, price: 0 }}
             index={index}
             onUpdate={onUpdateItem}
             onRemove={onRemoveItem}
