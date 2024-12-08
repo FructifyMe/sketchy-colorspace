@@ -1,3 +1,5 @@
+import type { Json } from '@/integrations/supabase/types';
+
 export interface EstimateItem {
   name: string;
   quantity?: number;
@@ -5,6 +7,7 @@ export interface EstimateItem {
 }
 
 export interface ClientInfo {
+  [key: string]: string | undefined;
   name?: string;
   address?: string;
   phone?: string;
