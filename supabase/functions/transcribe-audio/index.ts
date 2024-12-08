@@ -43,8 +43,8 @@ serve(async (req) => {
 
     if (!transcriptionResponse.ok) {
       const error = await transcriptionResponse.text();
-      console.error("Transcription failed:", error);
-      throw new Error(`Transcription failed: ${error}`);
+      console.error("Whisper API error:", error);
+      throw new Error(`Whisper API error: ${error}`);
     }
 
     const transcriptionResult = await transcriptionResponse.json();
@@ -64,65 +64,65 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Extract structured data from the transcribed text to create a professional estimate. Return a JSON object with the following structure:
-
-{
-  "clientInfo": {
-    "name": "Client's full name",
-    "address": "Complete address",
-    "phone": "Phone number if mentioned",
-    "email": "Email if mentioned"
-  },
-  "estimateDetails": {
-    "estimateNumber": "Auto-generated or mentioned estimate number",
-    "estimateDate": "Current or mentioned date",
-    "dueDate": "Due date if mentioned, otherwise 14 days from estimate date"
-  },
-  "items": [
-    {
-      "quantity": "Numeric value",
-      "description": "Detailed description of the item or service",
-      "unitPrice": "Price per unit in numeric format",
-      "amount": "Total amount (quantity * unitPrice)"
-    }
-  ],
-  "summary": {
-    "subtotal": "Sum of all item amounts",
-    "taxRate": "Tax rate if mentioned (default to 0)",
-    "taxAmount": "Calculated tax amount",
-    "total": "Final total including tax"
-  },
-  "terms": {
-    "paymentTerms": "Payment terms if mentioned (default to 'Payment is due in 14 days')",
-    "additionalNotes": "Any additional notes or special conditions mentioned"
-  }
-}
-
-Extract all numeric values as numbers, not strings. Include all mentioned items and their details. If specific values aren't mentioned, use reasonable defaults based on the context.`
+            content: `You are an AI assistant that extracts structured estimate information from transcribed text. 
+            Extract the following information in JSON format:
+            1. Client information (name, address, phone, email if mentioned)
+            2. Description of the work
+            3. List of items with quantities and prices
+            
+            Return the data in this exact format:
+            {
+              "description": "Overall description of the work",
+              "items": [
+                {
+                  "name": "Item description",
+                  "quantity": number,
+                  "price": number
+                }
+              ],
+              "clientInfo": {
+                "name": "string",
+                "address": "string",
+                "phone": "string",
+                "email": "string"
+              }
+            }`
           },
           {
             role: "user",
             content: transcribedText
           }
-        ]
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
       })
     });
 
     if (!extractionResponse.ok) {
       const error = await extractionResponse.text();
-      console.error("Extraction failed:", error);
-      throw new Error(`Extraction failed: ${error}`);
+      console.error("GPT-4 API error:", error);
+      throw new Error(`GPT-4 API error: ${error}`);
     }
 
     const extractionResult = await extractionResponse.json();
-    const structuredData = JSON.parse(extractionResult.choices[0].message.content);
-    console.log("Extracted structured data:", structuredData);
+    console.log("GPT-4 response:", extractionResult);
+
+    let structuredData;
+    try {
+      structuredData = JSON.parse(extractionResult.choices[0].message.content);
+      console.log("Parsed structured data:", structuredData);
+    } catch (error) {
+      console.error("Error parsing GPT response:", error);
+      throw new Error("Failed to parse structured data from GPT response");
+    }
 
     // Return both the transcription and structured data
     return new Response(
       JSON.stringify({
         transcriptionText: transcribedText,
-        ...structuredData
+        description: structuredData.description || '',
+        items: structuredData.items || [],
+        clientInfo: structuredData.clientInfo || {}
       }),
       { 
         headers: { 
@@ -135,9 +135,12 @@ Extract all numeric values as numbers, not strings. Include all mentioned items 
   } catch (error) {
     console.error("Error in transcribe-audio function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }),
       { 
-        status: 400,
+        status: 500,
         headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json',
