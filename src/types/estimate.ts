@@ -1,22 +1,14 @@
 import type { Json } from '@/integrations/supabase/types';
+import type { EstimateItem as DetailEstimateItem, EstimateClientInfo } from './estimateDetail';
 
-export interface EstimateItem {
-  name: string;
-  quantity?: number;
-  price?: number;
-}
+export type EstimateItem = DetailEstimateItem;
 
-export interface ClientInfo {
-  name?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-}
+export type { EstimateClientInfo };
 
 export interface EstimateData {
   description: string;
   items: EstimateItem[];
-  clientInfo: ClientInfo;
+  clientInfo: EstimateClientInfo;
 }
 
 export const toSupabaseJson = (data: any): Json => {
@@ -26,5 +18,5 @@ export const toSupabaseJson = (data: any): Json => {
 export interface TranscriptionResult {
   description: string;
   items: EstimateItem[];
-  clientInfo?: ClientInfo;
+  clientInfo?: EstimateClientInfo;
 }

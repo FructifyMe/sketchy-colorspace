@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { EstimateItem } from '@/types/estimate';
+import type { EstimateItem } from '@/types/estimateDetail';
 
 interface EstimateItemFormProps {
   item: EstimateItem;
@@ -22,14 +22,14 @@ const EstimateItemForm = ({ item, index, onUpdate, onRemove }: EstimateItemFormP
         <div className="flex gap-4">
           <Input
             type="number"
-            value={item.quantity || ''}
-            onChange={(e) => onUpdate(index, { ...item, quantity: parseInt(e.target.value) })}
+            value={item.quantity}
+            onChange={(e) => onUpdate(index, { ...item, quantity: parseInt(e.target.value) || 0 })}
             placeholder="Quantity"
           />
           <Input
             type="number"
-            value={item.price || ''}
-            onChange={(e) => onUpdate(index, { ...item, price: parseFloat(e.target.value) })}
+            value={item.price}
+            onChange={(e) => onUpdate(index, { ...item, price: parseFloat(e.target.value) || 0 })}
             placeholder="Price"
           />
         </div>
