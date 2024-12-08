@@ -8,6 +8,9 @@ import CreateTemplateDialog from "@/components/CreateTemplateDialog";
 import BusinessSettingsForm from "@/components/BusinessSettingsForm";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import TemplateList from "@/components/dashboard/TemplateList";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 type Template = Database['public']['Tables']['templates']['Row'] & {
   template_data: {
@@ -18,12 +21,15 @@ type Template = Database['public']['Tables']['templates']['Row'] & {
   };
 };
 
+type Estimate = Database['public']['Tables']['estimates']['Row'];
+
 const DashboardPage = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
-  const { data: templates, isLoading, error } = useQuery({
+  const { data: templates, isLoading: templatesLoading, error: templatesError } = useQuery({
     queryKey: ['templates'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -37,6 +43,23 @@ const DashboardPage = () => {
       }
       
       return data as Template[];
+    }
+  });
+
+  const { data: estimates, isLoading: estimatesLoading } = useQuery({
+    queryKey: ['estimates'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('estimates')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching estimates:", error);
+        throw error;
+      }
+
+      return data as Estimate[];
     }
   });
 
@@ -71,7 +94,7 @@ const DashboardPage = () => {
     }
   };
 
-  if (error) {
+  if (templatesError) {
     return (
       <div className="container mx-auto p-6">
         <div className="rounded-lg bg-destructive/15 p-4 text-destructive">
@@ -102,9 +125,56 @@ const DashboardPage = () => {
         </Card>
       )}
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Estimates</CardTitle>
+          <CardDescription>View and manage your estimates</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {estimatesLoading ? (
+            <div>Loading estimates...</div>
+          ) : estimates && estimates.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {estimates.map((estimate) => (
+                  <TableRow 
+                    key={estimate.id}
+                    className="cursor-pointer hover:bg-muted"
+                    onClick={() => navigate(`/estimates/${estimate.id}`)}
+                  >
+                    <TableCell>{estimate.description || 'No description'}</TableCell>
+                    <TableCell>
+                      {estimate.client_info ? 
+                        (estimate.client_info as any).name || 'No client name' 
+                        : 'No client info'}
+                    </TableCell>
+                    <TableCell className="capitalize">{estimate.status}</TableCell>
+                    <TableCell>
+                      {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="text-center py-4 text-muted-foreground">
+              No estimates found. Create your first estimate to get started.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <TemplateList
         templates={templates}
-        isLoading={isLoading}
+        isLoading={templatesLoading}
         onSelect={handleTemplateSelect}
         onDelete={handleDeleteTemplate}
         onEdit={(template) => console.log("Edit template:", template)}
