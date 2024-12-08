@@ -47,10 +47,22 @@ export const useEstimateForm = () => {
   const handleTranscriptionComplete = (data: TranscriptionResult) => {
     console.log("Handling transcription data:", data);
     
+    // Ensure we have valid data before updating
+    if (!data) {
+      console.error("No transcription data received");
+      return;
+    }
+
     // Create a new state object with all the updated data
-    const newEstimateData = {
-      description: data.description || estimateData.description,
-      items: data.items?.length ? data.items : estimateData.items,
+    const newEstimateData: EstimateData = {
+      description: data.description || '',
+      items: Array.isArray(data.items) && data.items.length > 0 
+        ? data.items.map(item => ({
+            name: item.name || '',
+            quantity: typeof item.quantity === 'number' ? item.quantity : undefined,
+            price: typeof item.price === 'number' ? item.price : undefined
+          }))
+        : estimateData.items,
       clientInfo: {
         ...estimateData.clientInfo,
         ...(data.clientInfo || {})
