@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import ClientInfoForm from './ClientInfoForm';
 import EstimateDescription from './EstimateDescription';
 import EstimateItems from './EstimateItems';
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import type { EstimateItem, EstimateClientInfo } from '@/types/estimateDetail';
 
 interface EstimateFormSectionProps {
@@ -10,6 +12,7 @@ interface EstimateFormSectionProps {
     description: string;
     items: EstimateItem[];
     clientInfo: EstimateClientInfo;
+    notes: string;
   };
   isSubmitting: boolean;
   onSubmit: (e: React.FormEvent) => Promise<void>;
@@ -17,6 +20,7 @@ interface EstimateFormSectionProps {
     description: string;
     items: EstimateItem[];
     clientInfo: EstimateClientInfo;
+    notes: string;
   }>) => void;
 }
 
@@ -45,6 +49,17 @@ const EstimateFormSection = ({
           />
 
           <EstimateItems items={formData.items} />
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes & Special Instructions</Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => onFormDataChange({ notes: e.target.value })}
+              placeholder="Enter any special instructions, access details, or additional notes..."
+              className="min-h-[100px]"
+            />
+          </div>
         </div>
       </Card>
 

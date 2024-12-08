@@ -20,7 +20,7 @@ const EstimateForm = () => {
       phone: '',
       email: ''
     } as EstimateClientInfo,
-    notes: '' // Added notes field to initial state
+    notes: ''
   });
 
   const handleTranscriptionComplete = (data: any) => {
@@ -37,7 +37,7 @@ const EstimateForm = () => {
     setFormData(prev => ({
       description: data.description || '',
       items: mappedItems,
-      notes: data.notes || '', // Added notes from transcription
+      notes: data.notes || '',
       clientInfo: {
         ...prev.clientInfo,
         name: data.clientInfo?.name || '',
@@ -55,6 +55,7 @@ const EstimateForm = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Saving estimate:", formData);
     await handleSubmit(formData);
   };
 
