@@ -8,10 +8,10 @@ export interface EstimateItem {
 
 export interface ClientInfo {
   [key: string]: string | undefined;
-  name?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
 }
 
 export interface EstimateData {
@@ -21,7 +21,7 @@ export interface EstimateData {
 }
 
 export interface TranscriptionResult {
-  description: string;
-  items: EstimateItem[];
-  clientInfo?: ClientInfo;
+  description?: string;
+  items?: EstimateItem[];
+  clientInfo?: Partial<ClientInfo>;
 }

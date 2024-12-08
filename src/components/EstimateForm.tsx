@@ -8,22 +8,28 @@ import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
 import EstimateFormActions from './estimates/EstimateFormActions';
 import { supabase } from "@/integrations/supabase/client";
-import type { ClientInfo } from '@/types/estimate';
+import type { ClientInfo, EstimateItem } from '@/types/estimate';
 import type { Json } from '@/integrations/supabase/types';
+
+interface FormData {
+  description: string;
+  items: EstimateItem[];
+  clientInfo: ClientInfo;
+}
 
 const EstimateForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<FormData>({
     description: '',
-    items: [] as Array<{ name: string; quantity?: number; price?: number }>,
+    items: [],
     clientInfo: {
       name: '',
       address: '',
       phone: '',
       email: ''
-    } as ClientInfo
+    }
   });
 
   const handleTranscriptionComplete = (data: any) => {
@@ -39,14 +45,14 @@ const EstimateForm = () => {
     
     setFormData(prev => ({
       ...prev,
-      description: data.description || '',
-      items: mappedItems,
+      description: data.description || prev.description,
+      items: mappedItems.length > 0 ? mappedItems : prev.items,
       clientInfo: {
         ...prev.clientInfo,
-        name: data.clientInfo?.name || '',
-        address: data.clientInfo?.address || '',
-        phone: data.clientInfo?.phone || '',
-        email: data.clientInfo?.email || ''
+        name: data.clientInfo?.name || prev.clientInfo.name,
+        address: data.clientInfo?.address || prev.clientInfo.address,
+        phone: data.clientInfo?.phone || prev.clientInfo.phone,
+        email: data.clientInfo?.email || prev.clientInfo.email
       }
     }));
 
