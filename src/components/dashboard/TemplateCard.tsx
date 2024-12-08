@@ -1,6 +1,5 @@
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileEdit, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -20,52 +19,40 @@ interface TemplateCardProps {
   onEdit: (template: Template) => void;
 }
 
-const TemplateCard = ({ template, onSelect, onDelete, onEdit }: TemplateCardProps) => {
+const TemplateCard = ({ template, onDelete, onEdit }: TemplateCardProps) => {
   const navigate = useNavigate();
 
   const handleUseTemplate = () => {
-    console.log("Using template:", template);
-    onSelect(template);
+    console.log("Navigating to estimate form with template:", template);
     navigate('/estimates/new', { state: { template } });
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow group">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle>{template.name}</CardTitle>
-            <CardDescription>{template.description}</CardDescription>
-          </div>
-          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="icon"
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">{template.name}</h3>
+          <p className="text-sm text-muted-foreground">{template.description}</p>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleUseTemplate}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            >
+              Use Template
+            </Button>
+            <Button 
+              variant="outline" 
               onClick={() => onEdit(template)}
             >
-              <FileEdit className="h-4 w-4" />
+              Edit
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
+            <Button 
+              variant="destructive"
               onClick={() => onDelete(template)}
             >
-              <Trash2 className="h-4 w-4" />
+              Delete
             </Button>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="text-sm text-muted-foreground">
-            {template.template_data.sections.length} sections
-          </div>
-          <Button 
-            className="w-full"
-            onClick={handleUseTemplate}
-          >
-            Use Template
-          </Button>
         </div>
       </CardContent>
     </Card>
