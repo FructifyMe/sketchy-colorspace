@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileEdit, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
 type Template = Database['public']['Tables']['templates']['Row'] & {
@@ -20,6 +21,14 @@ interface TemplateCardProps {
 }
 
 const TemplateCard = ({ template, onSelect, onDelete, onEdit }: TemplateCardProps) => {
+  const navigate = useNavigate();
+
+  const handleUseTemplate = () => {
+    console.log("Using template:", template);
+    onSelect(template);
+    navigate('/estimates/new', { state: { template } });
+  };
+
   return (
     <Card className="hover:shadow-lg transition-shadow group">
       <CardHeader>
@@ -53,7 +62,7 @@ const TemplateCard = ({ template, onSelect, onDelete, onEdit }: TemplateCardProp
           </div>
           <Button 
             className="w-full"
-            onClick={() => onSelect(template)}
+            onClick={handleUseTemplate}
           >
             Use Template
           </Button>

@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import VoiceRecorder from './VoiceRecorder';
 import EstimateItemForm from './EstimateItemForm';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import type { Database } from "@/integrations/supabase/types";
+
+type Template = Database['public']['Tables']['templates']['Row'] & {
+  template_data: {
+    sections: {
+      name: string;
+      fields: string[];
+    }[];
+  };
+};
 
 interface EstimateItem {
   name: string;
@@ -17,11 +28,35 @@ interface EstimateData {
 }
 
 const EstimateForm = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const template = location.state?.template as Template;
   const [estimateData, setEstimateData] = useState<EstimateData>({
     description: '',
     items: []
   });
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!template) {
+      toast({
+        title: "No template selected",
+        description: "Please select a template from the dashboard",
+        variant: "destructive"
+      });
+      navigate('/dashboard');
+      return;
+    }
+
+    console.log("Initializing estimate form with template:", template);
+    // Initialize items based on template sections
+    const initialItems = template.template_data.sections.map(() => ({
+      name: '',
+      quantity: undefined,
+      price: undefined
+    }));
+    setEstimateData(prev => ({ ...prev, items: initialItems }));
+  }, [template, navigate, toast]);
 
   const handleTranscriptionComplete = (data: EstimateData) => {
     setEstimateData(data);
@@ -48,9 +83,21 @@ const EstimateForm = () => {
     });
   };
 
+  if (!template) {
+    return null;
+  }
+
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Create New Estimate</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Create New Estimate</h2>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/dashboard')}
+        >
+          Back to Dashboard
+        </Button>
+      </div>
       
       <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
       
@@ -71,14 +118,17 @@ const EstimateForm = () => {
 
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900">Items</h3>
-          {estimateData.items.map((item, index) => (
-            <EstimateItemForm
-              key={index}
-              item={item}
-              index={index}
-              onUpdate={handleUpdateItem}
-              onRemove={handleRemoveItem}
-            />
+          {template.template_data.sections.map((section, index) => (
+            <div key={index} className="space-y-4">
+              <h4 className="font-medium text-gray-700">{section.name}</h4>
+              <EstimateItemForm
+                key={index}
+                item={estimateData.items[index] || { name: '', quantity: undefined, price: undefined }}
+                index={index}
+                onUpdate={handleUpdateItem}
+                onRemove={handleRemoveItem}
+              />
+            </div>
           ))}
           <Button
             type="button"
