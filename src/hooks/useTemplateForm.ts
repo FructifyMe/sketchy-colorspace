@@ -11,6 +11,11 @@ interface TemplateFormData {
   description: string;
   type: TemplateType;
   template_data: {
+    business_info?: {
+      company_name?: string;
+      company_logo?: string;
+      company_header?: string;
+    };
     sections: {
       name: string;
       fields: string[];
@@ -43,6 +48,25 @@ export const useTemplateForm = (onSuccess: () => void) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
+        // Fetch business settings
+        const { data: businessSettings } = await supabase
+          .from('business_settings')
+          .select('*')
+          .single();
+        
+        if (businessSettings) {
+          setFormData(prev => ({
+            ...prev,
+            template_data: {
+              ...prev.template_data,
+              business_info: {
+                company_name: businessSettings.company_name,
+                company_logo: businessSettings.company_logo,
+                company_header: businessSettings.company_header
+              }
+            }
+          }));
+        }
       }
     };
     getCurrentUser();

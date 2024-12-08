@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, FileEdit, Trash2 } from "lucide-react";
+import { Plus, FileEdit, Trash2, Settings } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Database } from "@/integrations/supabase/types";
 import CreateTemplateDialog from "@/components/CreateTemplateDialog";
+import BusinessSettingsForm from "@/components/BusinessSettingsForm";
 
 type Template = Database['public']['Tables']['templates']['Row'] & {
   template_data: {
@@ -20,6 +21,7 @@ type Template = Database['public']['Tables']['templates']['Row'] & {
 
 const DashboardPage = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const { toast } = useToast();
   
   const { data: templates, isLoading, error } = useQuery({
@@ -89,11 +91,31 @@ const DashboardPage = () => {
             Manage and create new templates for your estimates
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Template
-        </Button>
+        <div className="flex gap-4">
+          <Button onClick={() => setShowSettings(!showSettings)} variant="outline" className="gap-2">
+            <Settings className="h-4 w-4" />
+            Business Settings
+          </Button>
+          <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            New Template
+          </Button>
+        </div>
       </div>
+
+      {showSettings && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Business Settings</CardTitle>
+            <CardDescription>
+              Manage your company information that will appear on all templates
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BusinessSettingsForm />
+          </CardContent>
+        </Card>
+      )}
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
