@@ -9,6 +9,7 @@ import EstimateDescription from './estimates/EstimateDescription';
 import EstimateFormActions from './estimates/EstimateFormActions';
 import { supabase } from "@/integrations/supabase/client";
 import type { ClientInfo } from '@/types/estimate';
+import type { Json } from '@/integrations/supabase/types';
 
 const EstimateForm = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const EstimateForm = () => {
     console.log("Mapped items:", mappedItems);
     
     setFormData(prev => ({
+      ...prev,
       description: data.description || '',
       items: mappedItems,
       clientInfo: {
