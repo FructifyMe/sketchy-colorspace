@@ -1,27 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { Card } from "@/components/ui/card";
 import VoiceRecorder from './VoiceRecorder';
+import { useToast } from "@/components/ui/use-toast";
 import ClientInfoForm from './estimates/ClientInfoForm';
 import EstimateItems from './estimates/EstimateItems';
 import EstimateDescription from './estimates/EstimateDescription';
 import { supabase } from "@/integrations/supabase/client";
-import type { ClientInfo, EstimateItem, EstimateData } from '@/types/estimate';
+import type { ClientInfo } from '@/types/estimate';
 
 const EstimateForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [formData, setFormData] = React.useState<EstimateData>({
+  const [formData, setFormData] = React.useState({
     description: '',
-    items: [],
+    items: [] as Array<{ name: string; quantity?: number; price?: number }>,
     clientInfo: {
       name: '',
       address: '',
       phone: '',
       email: ''
-    }
+    } as ClientInfo
   });
 
   const handleTranscriptionComplete = (data: any) => {
@@ -36,15 +37,14 @@ const EstimateForm = () => {
     console.log("Mapped items:", mappedItems);
     
     setFormData(prev => ({
-      ...prev,
-      description: data.description || prev.description,
-      items: mappedItems.length > 0 ? mappedItems : prev.items,
+      description: data.description || '',
+      items: mappedItems,
       clientInfo: {
         ...prev.clientInfo,
-        name: data.clientInfo?.name || prev.clientInfo.name,
-        address: data.clientInfo?.address || prev.clientInfo.address,
-        phone: data.clientInfo?.phone || prev.clientInfo.phone,
-        email: data.clientInfo?.email || prev.clientInfo.email
+        name: data.clientInfo?.name || '',
+        address: data.clientInfo?.address || '',
+        phone: data.clientInfo?.phone || '',
+        email: data.clientInfo?.email || ''
       }
     }));
 
@@ -85,6 +85,7 @@ const EstimateForm = () => {
         description: "Estimate saved successfully",
       });
 
+      // Navigate to the estimate view page
       navigate(`/estimates/${data.id}`);
     } catch (error) {
       console.error("Error saving estimate:", error);
@@ -99,45 +100,40 @@ const EstimateForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="max-w-2xl mx-auto p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Create New Estimate</h2>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/dashboard')}
+        >
+          Back to Dashboard
+        </Button>
+      </div>
+      
+      <VoiceRecorder onTranscriptionComplete={handleTranscriptionComplete} />
+      
+      <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+        <Card className="p-4">
+          <div className="space-y-4">
             <ClientInfoForm
               clientInfo={formData.clientInfo}
               onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
             />
-          </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
             <EstimateDescription
               description={formData.description}
               onChange={(description) => setFormData(prev => ({ ...prev, description }))}
             />
-          </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
             <EstimateItems items={formData.items} />
           </div>
+        </Card>
 
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/dashboard')}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Save Estimate'}
-            </Button>
-          </div>
-        </form>
-      </div>
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Estimate'}
+        </Button>
+      </form>
     </div>
   );
 };

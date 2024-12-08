@@ -58,31 +58,31 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="space-y-4 p-4 border rounded-lg bg-white shadow-sm">
       <h3 className="text-lg font-semibold text-gray-900">Voice Recording</h3>
-      <div className="flex gap-4 justify-center">
+      <div className="flex gap-4">
         <Button
           onClick={startRecording}
           disabled={isRecording || isProcessing}
-          className="bg-emerald-600 hover:bg-emerald-700 min-w-[200px]"
+          className="bg-emerald-600 hover:bg-emerald-700"
         >
           Start Recording
         </Button>
         <Button
           onClick={handleStopRecording}
           disabled={!isRecording || isProcessing}
-          className="bg-red-600 hover:bg-red-700 min-w-[200px]"
+          className="bg-red-600 hover:bg-red-700"
         >
           Stop Recording
         </Button>
       </div>
       {isProcessing && (
-        <div className="text-sm text-gray-600 text-center">
+        <div className="text-sm text-gray-600">
           Processing your recording...
         </div>
       )}
       {isRecording && (
-        <div className="text-sm text-emerald-600 text-center">
+        <div className="text-sm text-emerald-600">
           Recording in progress...
         </div>
       )}

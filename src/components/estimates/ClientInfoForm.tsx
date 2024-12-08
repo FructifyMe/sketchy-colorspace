@@ -1,6 +1,12 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
-import type { ClientInfo } from '@/types/estimate';
+
+interface ClientInfo {
+  name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+}
 
 interface ClientInfoFormProps {
   clientInfo: ClientInfo;
@@ -8,47 +14,40 @@ interface ClientInfoFormProps {
 }
 
 const ClientInfoForm = ({ clientInfo, onChange }: ClientInfoFormProps) => {
-  const handleChange = (field: keyof ClientInfo) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({
-      ...clientInfo,
-      [field]: e.target.value
-    });
-  };
-
   return (
-    <div className="w-full">
-      <h3 className="text-xl font-semibold text-gray-900 mb-6">Client Information</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium text-gray-900">Client Information</h3>
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+          <label className="text-sm font-medium text-gray-700">Name</label>
           <Input
-            value={clientInfo.name}
-            onChange={handleChange('name')}
+            value={clientInfo?.name || ''}
+            onChange={(e) => onChange({ ...clientInfo, name: e.target.value })}
             placeholder="Client name"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <label className="text-sm font-medium text-gray-700">Email</label>
           <Input
             type="email"
-            value={clientInfo.email}
-            onChange={handleChange('email')}
+            value={clientInfo?.email || ''}
+            onChange={(e) => onChange({ ...clientInfo, email: e.target.value })}
             placeholder="client@example.com"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+          <label className="text-sm font-medium text-gray-700">Phone</label>
           <Input
-            value={clientInfo.phone}
-            onChange={handleChange('phone')}
+            value={clientInfo?.phone || ''}
+            onChange={(e) => onChange({ ...clientInfo, phone: e.target.value })}
             placeholder="Phone number"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+          <label className="text-sm font-medium text-gray-700">Address</label>
           <Input
-            value={clientInfo.address}
-            onChange={handleChange('address')}
+            value={clientInfo?.address || ''}
+            onChange={(e) => onChange({ ...clientInfo, address: e.target.value })}
             placeholder="Client address"
           />
         </div>

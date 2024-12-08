@@ -7,14 +7,14 @@ interface EstimateDescriptionProps {
 
 const EstimateDescription = ({ description, onChange }: EstimateDescriptionProps) => {
   return (
-    <div className="w-full">
-      <label className="block text-xl font-semibold text-gray-900 mb-4 text-left">
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
         Description
       </label>
       <textarea
         value={description}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full min-h-[150px] p-4 border rounded-md text-left resize-y"
+        className="w-full min-h-[100px] p-2 border rounded-md"
         placeholder="Description of work..."
       />
     </div>

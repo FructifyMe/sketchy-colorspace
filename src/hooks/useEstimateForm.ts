@@ -20,12 +20,7 @@ export const useEstimateForm = () => {
   const [estimateData, setEstimateData] = useState<EstimateData>({
     description: '',
     items: [],
-    clientInfo: {
-      name: '',
-      address: '',
-      phone: '',
-      email: ''
-    }
+    clientInfo: {}
   });
   const { toast } = useToast();
 
@@ -52,11 +47,13 @@ export const useEstimateForm = () => {
   const handleTranscriptionComplete = (data: TranscriptionResult) => {
     console.log("Handling transcription data:", data);
     
+    // Ensure we have valid data before updating
     if (!data) {
       console.error("No transcription data received");
       return;
     }
 
+    // Create a new state object with all the updated data
     const newEstimateData: EstimateData = {
       description: data.description || '',
       items: Array.isArray(data.items) && data.items.length > 0 
