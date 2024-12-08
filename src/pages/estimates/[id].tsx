@@ -2,11 +2,9 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import type { ClientInfo, EstimateItem } from '@/types/estimate';
 import EstimateHeader from '@/components/estimates/EstimateHeader';
-import { Printer, Mail, Download, ArrowLeft, Edit } from 'lucide-react';
+import EstimateActions from '@/components/estimates/EstimateActions';
 
 interface EstimateData {
   id: string;
@@ -69,44 +67,25 @@ const EstimateView = () => {
     console.log('Download functionality to be implemented');
   };
 
-  const handleBack = () => {
-    navigate('/estimates');
-  };
-
-  const handleEdit = () => {
-    navigate(`/estimates/${id}/edit`);
-  };
-
   const calculateTotal = () => {
     return estimate.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex gap-4 mb-6 print:hidden">
-        <Button variant="outline" onClick={handleBack}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-        </Button>
-        <Button variant="outline" onClick={handleEdit}>
-          <Edit className="mr-2 h-4 w-4" /> Edit
-        </Button>
-        <Button variant="outline" onClick={handlePrint}>
-          <Printer className="mr-2 h-4 w-4" /> Print
-        </Button>
-        <Button variant="outline" onClick={handleEmail}>
-          <Mail className="mr-2 h-4 w-4" /> Email
-        </Button>
-        <Button variant="outline" onClick={handleDownload}>
-          <Download className="mr-2 h-4 w-4" /> Download
-        </Button>
-      </div>
+    <div className="max-w-4xl mx-auto p-6 print:p-4">
+      <EstimateActions 
+        estimateId={estimate.id}
+        onPrint={handlePrint}
+        onEmail={handleEmail}
+        onDownload={handleDownload}
+      />
 
-      <Card className="p-8 space-y-6 bg-white shadow-lg print:shadow-none">
+      <div className="space-y-6 print:space-y-4 bg-white">
         <EstimateHeader estimateId={estimate.id} />
 
-        <div className="mt-8">
-          <div className="space-y-1 text-left">
-            <h2 className="font-semibold text-gray-700 mb-2">Customer Information</h2>
+        <div className="mb-8 print:mb-6">
+          <div className="space-y-1">
+            <h2 className="font-semibold text-gray-900 mb-2">Customer Information</h2>
             <p>{estimate.client_info?.name || 'N/A'}</p>
             <p>{estimate.client_info?.address || 'N/A'}</p>
             <p>{estimate.client_info?.phone || 'N/A'}</p>
@@ -114,10 +93,10 @@ const EstimateView = () => {
           </div>
         </div>
 
-        <div className="mt-8">
-          <ul className="space-y-4">
+        <div className="space-y-4 print:space-y-2">
+          <ul className="divide-y">
             {estimate.items.map((item, index) => (
-              <li key={index} className="flex justify-between items-center py-2 border-b border-gray-100">
+              <li key={index} className="py-3 flex justify-between items-center">
                 <div className="flex-1">
                   <p className="font-medium">{item.name}</p>
                 </div>
@@ -129,18 +108,18 @@ const EstimateView = () => {
               </li>
             ))}
           </ul>
-          <div className="mt-4 text-right">
+          <div className="pt-4 text-right">
             <p className="text-lg font-bold">Total: ${calculateTotal().toFixed(2)}</p>
           </div>
         </div>
 
         {estimate.description && (
-          <div className="mt-8">
-            <h3 className="font-semibold mb-2 text-gray-700">Description</h3>
+          <div className="mt-8 print:mt-6">
+            <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-gray-600">{estimate.description}</p>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 };
