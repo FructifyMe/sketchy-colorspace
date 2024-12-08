@@ -25,6 +25,15 @@ const EstimateItemsSection = ({
     }, 0);
   };
 
+  const formatCurrency = (amount: number) => {
+    return amount.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   return (
     <Card className="print:shadow-none print:border-none">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -53,13 +62,13 @@ const EstimateItemsSection = ({
                       <h4 className="font-medium">{item.name}</h4>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">${(item.price || 0).toFixed(2)}</p>
+                      <p className="font-medium">{formatCurrency(item.price || 0)}</p>
                       <p className="text-sm text-gray-600">Qty: {item.quantity || 0}</p>
                     </div>
                   </div>
                   {item.quantity && item.price && (
                     <p className="text-sm text-right text-gray-600">
-                      Subtotal: ${(item.quantity * item.price).toFixed(2)}
+                      Subtotal: {formatCurrency(item.quantity * item.price)}
                     </p>
                   )}
                 </div>
@@ -72,7 +81,7 @@ const EstimateItemsSection = ({
           {items.length > 0 && (
             <div className="mt-6 pt-4 border-t">
               <p className="text-right font-medium text-lg">
-                Total: ${calculateTotal().toFixed(2)}
+                Total: {formatCurrency(calculateTotal())}
               </p>
             </div>
           )}
