@@ -17,12 +17,17 @@ export const useEstimateDelete = (id: string) => {
       if (error) throw error;
     },
     onSuccess: () => {
+      console.log('Successfully deleted estimate:', id);
       toast({
         title: "Estimate deleted",
         description: "The estimate has been successfully deleted",
       });
-      queryClient.invalidateQueries({ queryKey: ['estimate', id] });
+      
+      // Invalidate both the specific estimate and the estimates list queries
       queryClient.invalidateQueries({ queryKey: ['estimates'] });
+      queryClient.invalidateQueries({ queryKey: ['estimate', id] });
+      
+      console.log('Invalidated queries for estimates');
     },
     onError: (error) => {
       console.error('Error deleting estimate:', error);

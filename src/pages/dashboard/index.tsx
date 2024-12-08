@@ -63,7 +63,9 @@ const DashboardPage = () => {
 
       console.log("Fetched estimates:", data);
       return data as Estimate[];
-    }
+    },
+    // Add staleTime to prevent unnecessary refetches
+    staleTime: 1000,
   });
 
   const handleTemplateSelect = (template: Template) => {
