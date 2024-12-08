@@ -70,32 +70,17 @@ const EstimateForm = () => {
   const handleTranscriptionComplete = (data: any) => {
     console.log("Handling transcription data:", data);
     
-    // Update client info if available
-    if (data.clientInfo) {
-      setEstimateData(prev => ({
-        ...prev,
-        clientInfo: {
-          ...prev.clientInfo,
-          ...data.clientInfo
-        }
-      }));
-    }
+    // Update all data in a single state update
+    setEstimateData(prev => ({
+      description: data.description || prev.description,
+      items: data.items?.length ? data.items : prev.items,
+      clientInfo: data.clientInfo ? {
+        ...prev.clientInfo,
+        ...data.clientInfo
+      } : prev.clientInfo
+    }));
 
-    // Update description if available
-    if (data.description) {
-      setEstimateData(prev => ({
-        ...prev,
-        description: data.description
-      }));
-    }
-
-    // Update items if available
-    if (data.items?.length) {
-      setEstimateData(prev => ({
-        ...prev,
-        items: data.items
-      }));
-    }
+    console.log("Updated estimate data:", estimateData);
 
     toast({
       title: "Transcription complete",
