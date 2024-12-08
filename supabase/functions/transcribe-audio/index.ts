@@ -49,7 +49,7 @@ serve(async (req) => {
     const transcribedText = transcriptionResult.text;
     console.log("Transcription result:", transcribedText);
 
-    // Step 2: Process with GPT-4 using enhanced prompt
+    // Step 2: Process with GPT-4 using enhanced prompt for better note extraction
     console.log("Step 2: Processing with GPT-4o-mini...");
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -63,31 +63,30 @@ serve(async (req) => {
           {
             role: "system",
             content: `You are an AI assistant specialized in extracting estimate information from verbal descriptions.
-            Extract the following information and format it as a JSON object:
+            Your primary focus is to carefully separate the core estimate details from any special instructions, requirements, or notes.
+            
+            Extract and categorize the information as follows:
 
             1. Client Information:
-               - Name
-               - Email
-               - Phone
-               - Address
+               - Name (required)
+               - Email (if mentioned)
+               - Phone (if mentioned)
+               - Address (if mentioned)
 
-            2. Main Description:
-               - Overall description of the work to be done
+            2. Core Estimate Components:
+               - Main description: A clear, concise summary of the primary work to be done
+               - Line items: Each distinct service or product with quantity and price
 
-            3. Line Items:
-               For each distinct item or service mentioned:
-               - Description
-               - Quantity
-               - Price
+            3. Notes and Special Instructions (VERY IMPORTANT):
+               Carefully identify and extract ANY of the following:
+               - Access instructions (how to enter, where to park, etc.)
+               - Special requirements (cleaning shoes, specific timing, etc.)
+               - Client preferences (color choices, specific materials, etc.)
+               - Safety considerations
+               - Environmental considerations
+               - Any other instructions or requests that aren't part of the actual work items
 
-            4. Notes:
-               - Any special instructions
-               - Access information
-               - Special requirements
-               - Client preferences
-               - Any other relevant details not fitting into the above categories
-
-            Return a JSON object with this exact structure:
+            Format the response as a JSON object with this exact structure:
             {
               "clientInfo": {
                 "name": "string or null",
@@ -95,7 +94,7 @@ serve(async (req) => {
                 "phone": "string or null",
                 "address": "string or null"
               },
-              "description": "string",
+              "description": "string summarizing the main work",
               "items": [
                 {
                   "description": "string",
@@ -103,8 +102,16 @@ serve(async (req) => {
                   "price": number
                 }
               ],
-              "notes": "string containing all special instructions and additional details"
-            }`
+              "notes": "string containing ALL special instructions, requirements, and additional details that aren't part of the work items"
+            }
+
+            IMPORTANT: The notes field should capture ANY instructions or requests that aren't directly related to the work items or pricing.
+            Examples of what should go in notes:
+            - "Please enter through the back door"
+            - "Need to complete work before 3pm"
+            - "Must wear shoe covers"
+            - "Call before arriving"
+            These are crucial details that need to be captured separately from the work description.`
           },
           {
             role: "user",
