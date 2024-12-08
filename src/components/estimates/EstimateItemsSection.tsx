@@ -26,11 +26,11 @@ const EstimateItemsSection = ({
   };
 
   return (
-    <Card>
+    <Card className="print:shadow-none print:border-none">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Items</CardTitle>
         {isEditing && (
-          <Button onClick={onAddItem} variant="outline">
+          <Button onClick={onAddItem} variant="outline" className="print:hidden">
             Add Item
           </Button>
         )}
@@ -47,7 +47,7 @@ const EstimateItemsSection = ({
                   onRemove={onRemoveItem}
                 />
               ) : (
-                <div className="border p-4 rounded-lg space-y-2">
+                <div className="border p-4 rounded-lg space-y-2 print:border-none print:p-2">
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="font-medium">{item.name}</h4>
@@ -71,7 +71,7 @@ const EstimateItemsSection = ({
           )}
           {items.length > 0 && (
             <div className="mt-6 pt-4 border-t">
-              <p className="text-right font-medium">
+              <p className="text-right font-medium text-lg">
                 Total: ${calculateTotal().toFixed(2)}
               </p>
             </div>
