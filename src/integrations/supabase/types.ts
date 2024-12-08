@@ -11,31 +11,49 @@ export type Database = {
     Tables: {
       business_settings: {
         Row: {
+          address: string | null
+          city: string | null
           company_header: string | null
           company_logo: string | null
           company_name: string | null
           created_at: string
+          email: string | null
           id: string
+          phone: string | null
+          state: string | null
           updated_at: string
           user_id: string
+          zip_code: string | null
         }
         Insert: {
+          address?: string | null
+          city?: string | null
           company_header?: string | null
           company_logo?: string | null
           company_name?: string | null
           created_at?: string
+          email?: string | null
           id?: string
+          phone?: string | null
+          state?: string | null
           updated_at?: string
           user_id: string
+          zip_code?: string | null
         }
         Update: {
+          address?: string | null
+          city?: string | null
           company_header?: string | null
           company_logo?: string | null
           company_name?: string | null
           created_at?: string
+          email?: string | null
           id?: string
+          phone?: string | null
+          state?: string | null
           updated_at?: string
           user_id?: string
+          zip_code?: string | null
         }
         Relationships: []
       }
