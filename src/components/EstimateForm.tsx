@@ -38,6 +38,7 @@ const EstimateForm = () => {
     console.log("Mapped items:", mappedItems);
     
     setFormData(prev => ({
+      ...prev,
       description: data.description || '',
       items: mappedItems,
       clientInfo: {
