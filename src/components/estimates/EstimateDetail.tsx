@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDistanceToNow } from 'date-fns';
 import {
   AlertDialog,
@@ -17,8 +16,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from 'react';
-import EstimateItemForm from '../EstimateItemForm';
 import type { EstimateItem } from '@/types/estimate';
+import EstimateClientInfo from './EstimateClientInfo';
+import EstimateItemsSection from './EstimateItemsSection';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Estimate {
   id: string;
@@ -56,7 +57,6 @@ const EstimateDetail = () => {
         throw error;
       }
 
-      // Ensure items is always an array
       const parsedData = {
         ...data,
         items: Array.isArray(data.items) ? data.items : []
@@ -109,7 +109,6 @@ const EstimateDetail = () => {
         title: "Estimate updated",
         description: "Changes have been saved successfully",
       });
-      setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ['estimate', id] });
     },
     onError: (error) => {
@@ -144,6 +143,22 @@ const EstimateDetail = () => {
     });
   };
 
+  const handleAddItem = () => {
+    if (!estimate) return;
+    
+    const newItem: EstimateItem = {
+      name: '',
+      description: '',
+      quantity: 1,
+      price: 0
+    };
+    
+    updateMutation.mutate({
+      ...estimate,
+      items: [...estimate.items, newItem],
+    });
+  };
+
   if (isLoading) {
     return <div className="container mx-auto p-6">Loading...</div>;
   }
@@ -170,7 +185,7 @@ const EstimateDetail = () => {
             variant="secondary"
             onClick={() => setIsEditing(!isEditing)}
           >
-            {isEditing ? 'Cancel Edit' : 'Edit'}
+            {isEditing ? 'Done Editing' : 'Edit'}
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -195,75 +210,34 @@ const EstimateDetail = () => {
       </div>
 
       <div className="space-y-6">
+        <EstimateClientInfo clientInfo={estimate.client_info} />
+
         <Card>
           <CardHeader>
-            <CardTitle>Client Information</CardTitle>
+            <CardTitle>Description</CardTitle>
           </CardHeader>
           <CardContent>
-            <dl className="grid grid-cols-2 gap-4">
-              <div>
-                <dt className="font-medium text-gray-500">Name</dt>
-                <dd>{estimate.client_info?.name || 'N/A'}</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-gray-500">Email</dt>
-                <dd>{estimate.client_info?.email || 'N/A'}</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-gray-500">Phone</dt>
-                <dd>{estimate.client_info?.phone || 'N/A'}</dd>
-              </div>
-              <div>
-                <dt className="font-medium text-gray-500">Address</dt>
-                <dd>{estimate.client_info?.address || 'N/A'}</dd>
-              </div>
-            </dl>
+            <p>{estimate.description || 'No description provided'}</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Estimate Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-500">Description</h4>
-                <p>{estimate.description || 'No description provided'}</p>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-gray-500">Items</h4>
-                <div className="space-y-2">
-                  {estimate.items.map((item, index) => (
-                    <div key={index}>
-                      {isEditing ? (
-                        <EstimateItemForm
-                          item={item}
-                          index={index}
-                          onUpdate={handleUpdateItem}
-                          onRemove={() => handleRemoveItem(index)}
-                        />
-                      ) : (
-                        <div className="border p-3 rounded-lg">
-                          <p><strong>Item:</strong> {item.name}</p>
-                          {item.quantity && <p><strong>Quantity:</strong> {item.quantity}</p>}
-                          {item.price && <p><strong>Price:</strong> ${item.price}</p>}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+        <EstimateItemsSection
+          items={estimate.items}
+          isEditing={isEditing}
+          onUpdateItem={handleUpdateItem}
+          onRemoveItem={handleRemoveItem}
+          onAddItem={handleAddItem}
+        />
 
-              <div className="flex justify-between items-center pt-4 border-t">
-                <div>
-                  <span className="text-sm text-gray-500">Status: </span>
-                  <span className="capitalize">{estimate.status}</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Created {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
-                </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <span className="text-sm text-gray-500">Status: </span>
+                <span className="capitalize">{estimate.status}</span>
+              </div>
+              <div className="text-sm text-gray-500">
+                Created {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
               </div>
             </div>
           </CardContent>
