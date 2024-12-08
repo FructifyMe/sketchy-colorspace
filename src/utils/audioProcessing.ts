@@ -21,24 +21,35 @@ export const extractItemsFromText = (text: string) => {
 };
 
 export const processAudioData = async (audioChunks: Blob[]) => {
+  console.log("Starting audio processing...");
   const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
   const audioArrayBuffer = await audioBlob.arrayBuffer();
   const audioArray = new Float32Array(audioArrayBuffer);
 
-  const transcriber = await pipeline(
-    "automatic-speech-recognition",
-    "openai/whisper-small"
-  );
+  try {
+    console.log("Initializing transcriber pipeline...");
+    const transcriber = await pipeline(
+      "automatic-speech-recognition",
+      "onnx-community/whisper-tiny.en",
+      { device: "cpu" } // Using CPU as fallback since WebGPU might not be available
+    );
 
-  const transcription = await transcriber(audioArray);
-  const transcriptionText = Array.isArray(transcription) 
-    ? transcription[0]?.text || ''
-    : transcription.text || '';
+    console.log("Transcribing audio...");
+    const transcription = await transcriber(audioArray);
+    const transcriptionText = typeof transcription === 'string' 
+      ? transcription 
+      : Array.isArray(transcription) 
+        ? transcription[0]?.text || ''
+        : transcription.text || '';
 
-  console.log("Transcription:", transcriptionText);
+    console.log("Transcription completed:", transcriptionText);
 
-  return {
-    transcriptionText,
-    items: extractItemsFromText(transcriptionText)
-  };
+    return {
+      transcriptionText,
+      items: extractItemsFromText(transcriptionText)
+    };
+  } catch (error) {
+    console.error("Error in audio processing:", error);
+    throw error;
+  }
 };
