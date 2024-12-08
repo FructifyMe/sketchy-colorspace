@@ -4,14 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import AuthLayout from "@/components/AuthLayout";
+import { useToast } from "@/components/ui/use-toast";
 
 const SignupPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session);
       if (session) {
         navigate("/dashboard");
       }
@@ -21,7 +24,7 @@ const SignupPage = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", _event);
+      console.log("Auth state changed:", _event, session);
       if (session) {
         navigate("/dashboard");
       }
@@ -62,6 +65,14 @@ const SignupPage = () => {
         theme="light"
         providers={[]}
         redirectTo={`${window.location.origin}/dashboard`}
+        onError={(error) => {
+          console.error("Auth error:", error);
+          toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: error.message,
+          });
+        }}
       />
     </AuthLayout>
   );
