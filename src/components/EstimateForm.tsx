@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import VoiceRecorder from './VoiceRecorder';
 import { useToast } from "@/components/ui/use-toast";
+import ClientInfoForm from './estimates/ClientInfoForm';
 
 const EstimateForm = () => {
   const navigate = useNavigate();
@@ -11,24 +12,27 @@ const EstimateForm = () => {
   const [formData, setFormData] = React.useState({
     description: '',
     items: [] as Array<{ name: string; quantity?: number; price?: number }>,
+    clientInfo: {
+      name: '',
+      address: '',
+      phone: '',
+      email: ''
+    }
   });
 
   const handleTranscriptionComplete = (data: any) => {
     console.log("Received transcription data:", data);
     
-    if (!data) {
-      console.error("No transcription data received");
-      return;
-    }
-
     // Update form with transcribed data
     setFormData({
       description: data.description || '',
-      items: Array.isArray(data.items) ? data.items.map(item => ({
-        name: item.name || '',
-        quantity: item.quantity,
-        price: item.price
-      })) : []
+      items: Array.isArray(data.items) ? data.items : [],
+      clientInfo: {
+        name: data.clientInfo?.name || '',
+        address: data.clientInfo?.address || '',
+        phone: data.clientInfo?.phone || '',
+        email: data.clientInfo?.email || ''
+      }
     });
 
     toast({
@@ -63,6 +67,13 @@ const EstimateForm = () => {
       <form onSubmit={handleSubmit} className="space-y-6 mt-6">
         <Card className="p-4">
           <div className="space-y-4">
+            {/* Client Information */}
+            <ClientInfoForm
+              clientInfo={formData.clientInfo}
+              onChange={(info) => setFormData(prev => ({ ...prev, clientInfo: info }))}
+            />
+
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Description
@@ -75,6 +86,7 @@ const EstimateForm = () => {
               />
             </div>
 
+            {/* Items */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Items
