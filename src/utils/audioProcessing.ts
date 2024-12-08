@@ -1,10 +1,14 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export const extractItemsFromText = (text: string) => {
+  if (!text) return [];
+  
   const items = [];
   const lines = text.split('.');
   
   for (const line of lines) {
+    if (!line.trim()) continue;
+    
     const priceMatch = line.match(/\$(\d+(\.\d{2})?)/);
     const quantityMatch = line.match(/(\d+)\s*(pieces?|units?|items?)/i);
     
@@ -52,11 +56,14 @@ export const processAudioData = async (audioChunks: Blob[]) => {
     }
 
     console.log("Transcription completed:", data);
-    const transcriptionText = data.text;
+    const transcriptionText = data.text || '';
+
+    const items = extractItemsFromText(transcriptionText);
+    console.log("Extracted items:", items);
 
     return {
       transcriptionText,
-      items: extractItemsFromText(transcriptionText)
+      items
     };
   } catch (error) {
     console.error("Error in audio processing:", error);
