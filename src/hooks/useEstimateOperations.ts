@@ -40,8 +40,10 @@ export const useEstimateOperations = (id: string) => {
       const { error } = await supabase
         .from('estimates')
         .update({
-          ...updatedData,
-          items: toSupabaseJson(updatedData.items)
+          items: toSupabaseJson(updatedData.items),
+          client_info: updatedData.client_info ? toSupabaseJson(updatedData.client_info) : null,
+          description: updatedData.description,
+          status: updatedData.status
         })
         .eq('id', id);
 

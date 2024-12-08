@@ -9,6 +9,7 @@ import EstimateItemsSection from './EstimateItemsSection';
 import EstimateHeader from './EstimateHeader';
 import { useEstimateOperations } from '@/hooks/useEstimateOperations';
 import type { Estimate } from '@/types/estimateDetail';
+import { parseClientInfo, parseItems } from '@/types/estimateDetail';
 
 const EstimateDetail = () => {
   const { id } = useParams();
@@ -31,18 +32,11 @@ const EstimateDetail = () => {
         throw error;
       }
 
-      // Parse the items from JSON to ensure they match our EstimateItem type
-      const parsedItems = Array.isArray(data.items) ? data.items.map((item: any) => ({
-        name: item.name || '',
-        quantity: item.quantity || 0,
-        price: item.price || 0
-      })) : [];
-
       const parsedData: Estimate = {
         ...data,
-        items: parsedItems,
+        client_info: parseClientInfo(data.client_info),
+        items: parseItems(data.items),
         status: data.status || 'draft',
-        client_info: data.client_info || null
       };
 
       console.log('Fetched estimate:', parsedData);
