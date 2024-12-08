@@ -1,11 +1,12 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import type { ClientInfo, EstimateItem } from '@/types/estimate';
 import EstimateHeader from '@/components/estimates/EstimateHeader';
-import EstimateActions from '@/components/estimates/EstimateActions';
+import { Printer, Mail, Download, ArrowLeft, Edit } from 'lucide-react';
 
 interface EstimateData {
   id: string;
@@ -17,6 +18,7 @@ interface EstimateData {
 
 const EstimateView = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { data: estimate, isLoading } = useQuery({
     queryKey: ['estimate', id],
@@ -60,13 +62,19 @@ const EstimateView = () => {
   };
 
   const handleEmail = () => {
-    // TODO: Implement email functionality
     console.log('Email functionality to be implemented');
   };
 
   const handleDownload = () => {
-    // TODO: Implement download functionality
     console.log('Download functionality to be implemented');
+  };
+
+  const handleBack = () => {
+    navigate('/estimates');
+  };
+
+  const handleEdit = () => {
+    navigate(`/estimates/${id}/edit`);
   };
 
   const calculateTotal = () => {
@@ -75,19 +83,30 @@ const EstimateView = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <EstimateActions
-        estimateId={estimate.id}
-        onPrint={handlePrint}
-        onEmail={handleEmail}
-        onDownload={handleDownload}
-      />
+      <div className="flex gap-4 mb-6 print:hidden">
+        <Button variant="outline" onClick={handleBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back
+        </Button>
+        <Button variant="outline" onClick={handleEdit}>
+          <Edit className="mr-2 h-4 w-4" /> Edit
+        </Button>
+        <Button variant="outline" onClick={handlePrint}>
+          <Printer className="mr-2 h-4 w-4" /> Print
+        </Button>
+        <Button variant="outline" onClick={handleEmail}>
+          <Mail className="mr-2 h-4 w-4" /> Email
+        </Button>
+        <Button variant="outline" onClick={handleDownload}>
+          <Download className="mr-2 h-4 w-4" /> Download
+        </Button>
+      </div>
 
       <Card className="p-8 space-y-6 bg-white shadow-lg print:shadow-none">
         <EstimateHeader estimateId={estimate.id} />
 
         <div className="mt-8">
-          <div className="space-y-1">
-            <h2 className="font-semibold text-gray-700">Customer Information</h2>
+          <div className="space-y-1 text-left">
+            <h2 className="font-semibold text-gray-700 mb-2">Customer Information</h2>
             <p>{estimate.client_info?.name || 'N/A'}</p>
             <p>{estimate.client_info?.address || 'N/A'}</p>
             <p>{estimate.client_info?.phone || 'N/A'}</p>
@@ -96,52 +115,31 @@ const EstimateView = () => {
         </div>
 
         <div className="mt-8">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="py-2 px-4 text-left font-semibold text-gray-700">Description</th>
-                <th className="py-2 px-4 text-right font-semibold text-gray-700">Quantity</th>
-                <th className="py-2 px-4 text-right font-semibold text-gray-700">Unit Price</th>
-                <th className="py-2 px-4 text-right font-semibold text-gray-700">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {estimate.items.map((item, index) => (
-                <tr key={index} className="border-b border-gray-100">
-                  <td className="py-2 px-4">{item.name}</td>
-                  <td className="py-2 px-4 text-right">{item.quantity}</td>
-                  <td className="py-2 px-4 text-right">${item.price.toFixed(2)}</td>
-                  <td className="py-2 px-4 text-right">${(item.quantity * item.price).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan={3} className="py-2 px-4 text-right font-semibold">Total:</td>
-                <td className="py-2 px-4 text-right font-semibold">${calculateTotal().toFixed(2)}</td>
-              </tr>
-            </tfoot>
-          </table>
+          <ul className="space-y-4">
+            {estimate.items.map((item, index) => (
+              <li key={index} className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div className="flex-1">
+                  <p className="font-medium">{item.name}</p>
+                </div>
+                <div className="flex gap-8">
+                  <p className="text-gray-600">Qty: {item.quantity}</p>
+                  <p className="text-gray-600">${item.price.toFixed(2)}</p>
+                  <p className="font-medium">${(item.quantity * item.price).toFixed(2)}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-4 text-right">
+            <p className="text-lg font-bold">Total: ${calculateTotal().toFixed(2)}</p>
+          </div>
         </div>
 
         {estimate.description && (
           <div className="mt-8">
             <h3 className="font-semibold mb-2 text-gray-700">Description</h3>
-            <p className="whitespace-pre-wrap text-gray-600">{estimate.description}</p>
+            <p className="text-gray-600">{estimate.description}</p>
           </div>
         )}
-
-        <div className="mt-8">
-          <h3 className="font-semibold mb-2 text-gray-700">Terms and Conditions</h3>
-          <p className="text-gray-600">Payment is due within 30 days</p>
-        </div>
-
-        <div className="mt-12 pt-8 border-t">
-          <div className="w-64">
-            <div className="border-b border-gray-300 mt-16"></div>
-            <p className="text-center mt-2 text-gray-600">Customer Signature</p>
-          </div>
-        </div>
       </Card>
     </div>
   );

@@ -24,7 +24,7 @@ const EstimateHeader = ({ estimateId }: EstimateHeaderProps) => {
   });
 
   return (
-    <div className="mb-8">
+    <div className="border-b pb-6">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           {businessSettings?.company_logo && (
