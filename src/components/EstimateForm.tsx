@@ -71,8 +71,8 @@ const EstimateForm = () => {
         .insert({
           user_id: user.id,
           description: formData.description,
-          items: formData.items as unknown as Json,
-          client_info: formData.clientInfo as unknown as Json,
+          items: formData.items as Json,
+          client_info: formData.clientInfo as Json,
           status: 'draft'
         })
         .select()
