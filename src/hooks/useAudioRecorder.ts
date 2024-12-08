@@ -36,18 +36,32 @@ export const useAudioRecorder = () => {
       }
 
       console.log("Creating MediaRecorder with MIME type:", mimeType);
-      mediaRecorderRef.current = new MediaRecorder(stream, {
+      const mediaRecorder = new MediaRecorder(stream, {
         mimeType: mimeType
       });
       
       audioChunksRef.current = [];
 
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
+      mediaRecorder.ondataavailable = (event) => {
+        console.log("Data available event triggered, chunk size:", event.data.size);
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
       };
 
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
+      mediaRecorder.onstart = () => {
+        console.log("MediaRecorder started");
+        setIsRecording(true);
+      };
+
+      mediaRecorder.onstop = () => {
+        console.log("MediaRecorder stopped, chunks collected:", audioChunksRef.current.length);
+        setIsRecording(false);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start(1000); // Collect data every second
       
       console.log("Started recording with format:", mimeType);
       toast({
@@ -66,13 +80,9 @@ export const useAudioRecorder = () => {
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
+      console.log("Stopping recording...");
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
       console.log("Stopped recording");
-      toast({
-        title: "Recording stopped",
-        description: "Processing your audio...",
-      });
     }
   };
 

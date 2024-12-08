@@ -28,29 +28,37 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
 
   const handleStopRecording = async () => {
     stopRecording();
-    setIsProcessing(true);
     
-    try {
-      const result = await processAudioData(audioChunksRef.current);
-      onTranscriptionComplete({
-        description: result.transcriptionText,
-        items: result.items
-      });
+    // Wait a bit for the final chunks to be processed
+    setTimeout(async () => {
+      setIsProcessing(true);
       
-      toast({
-        title: "Processing complete",
-        description: "Your estimate has been created",
-      });
-    } catch (error) {
-      console.error("Error processing audio:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to process audio",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+      try {
+        if (audioChunksRef.current.length === 0) {
+          throw new Error("No audio data recorded. Please try recording again.");
+        }
+
+        const result = await processAudioData(audioChunksRef.current);
+        onTranscriptionComplete({
+          description: result.transcriptionText,
+          items: result.items
+        });
+        
+        toast({
+          title: "Processing complete",
+          description: "Your estimate has been created",
+        });
+      } catch (error) {
+        console.error("Error processing audio:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to process audio",
+        });
+      } finally {
+        setIsProcessing(false);
+      }
+    }, 1000); // Wait 1 second for final data
   };
 
   return (
@@ -75,6 +83,11 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
       {isProcessing && (
         <div className="text-sm text-gray-600">
           Processing your recording...
+        </div>
+      )}
+      {isRecording && (
+        <div className="text-sm text-emerald-600">
+          Recording in progress...
         </div>
       )}
     </div>
