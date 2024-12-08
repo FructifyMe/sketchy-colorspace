@@ -57,10 +57,17 @@ const EstimateDetail = () => {
         throw error;
       }
 
-      const parsedData = {
+      // Parse the items from JSON to ensure they match our EstimateItem type
+      const parsedItems = Array.isArray(data.items) ? data.items.map((item: any) => ({
+        name: item.name || '',
+        quantity: item.quantity || 0,
+        price: item.price || 0
+      })) : [];
+
+      const parsedData: Estimate = {
         ...data,
-        items: Array.isArray(data.items) ? data.items : []
-      } as Estimate;
+        items: parsedItems
+      };
 
       console.log('Fetched estimate:', parsedData);
       return parsedData;
@@ -99,7 +106,10 @@ const EstimateDetail = () => {
       console.log('Updating estimate:', id, updatedData);
       const { error } = await supabase
         .from('estimates')
-        .update(updatedData)
+        .update({
+          ...updatedData,
+          items: updatedData.items // Supabase will handle the JSON serialization
+        })
         .eq('id', id);
 
       if (error) throw error;
@@ -148,7 +158,6 @@ const EstimateDetail = () => {
     
     const newItem: EstimateItem = {
       name: '',
-      description: '',
       quantity: 1,
       price: 0
     };
