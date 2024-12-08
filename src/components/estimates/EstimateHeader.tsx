@@ -30,10 +30,10 @@ const EstimateHeader = ({ estimateId }: EstimateHeaderProps) => {
           <img 
             src={businessSettings.company_logo} 
             alt="Company logo" 
-            className="h-16 w-16 object-contain"
+            className="h-16 w-16 object-contain print:hidden"
           />
         )}
-        <div>
+        <div className="text-left">
           <h1 className="text-2xl font-bold text-gray-900">
             {businessSettings?.company_name || 'Company Name'}
           </h1>

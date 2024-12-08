@@ -13,7 +13,7 @@ const EstimateActions = ({ estimateId, onPrint, onEmail, onDownload }: EstimateA
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between mb-6 print:hidden">
+    <div className="flex items-center justify-between mb-8 print:hidden">
       <div className="flex items-center gap-4">
         <Button
           variant="outline"

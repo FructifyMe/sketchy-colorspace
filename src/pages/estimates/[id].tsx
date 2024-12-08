@@ -83,9 +83,9 @@ const EstimateView = () => {
       <div className="space-y-6 print:space-y-4 bg-white">
         <EstimateHeader estimateId={estimate.id} />
 
-        <div className="mb-8 print:mb-6">
+        <div className="mb-8 print:mb-6 text-left">
+          <h2 className="font-semibold text-gray-900 mb-2">Bill To:</h2>
           <div className="space-y-1">
-            <h2 className="font-semibold text-gray-900 mb-2">Customer Information</h2>
             <p>{estimate.client_info?.name || 'N/A'}</p>
             <p>{estimate.client_info?.address || 'N/A'}</p>
             <p>{estimate.client_info?.phone || 'N/A'}</p>
@@ -94,21 +94,27 @@ const EstimateView = () => {
         </div>
 
         <div className="space-y-4 print:space-y-2">
-          <ul className="divide-y">
-            {estimate.items.map((item, index) => (
-              <li key={index} className="py-3 flex justify-between items-center">
-                <div className="flex-1">
-                  <p className="font-medium">{item.name}</p>
-                </div>
-                <div className="flex gap-8">
-                  <p className="text-gray-600">Qty: {item.quantity}</p>
-                  <p className="text-gray-600">${item.price.toFixed(2)}</p>
-                  <p className="font-medium">${(item.quantity * item.price).toFixed(2)}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className="pt-4 text-right">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="py-2 text-left w-20">QTY</th>
+                <th className="py-2 text-left">Description</th>
+                <th className="py-2 text-right w-32">Unit Price</th>
+                <th className="py-2 text-right w-32">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {estimate.items.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="py-3 text-left">{item.quantity}</td>
+                  <td className="py-3 text-left">{item.name}</td>
+                  <td className="py-3 text-right">${item.price.toFixed(2)}</td>
+                  <td className="py-3 text-right">${(item.quantity * item.price).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="pt-4 text-right border-t">
             <p className="text-lg font-bold">Total: ${calculateTotal().toFixed(2)}</p>
           </div>
         </div>
