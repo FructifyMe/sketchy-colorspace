@@ -1,4 +1,3 @@
-import { pipeline } from '@huggingface/transformers';
 import { supabase } from '@/integrations/supabase/client';
 
 export const extractItemsFromText = (text: string) => {
@@ -24,34 +23,26 @@ export const extractItemsFromText = (text: string) => {
 export const processAudioData = async (audioChunks: Blob[]) => {
   console.log("Starting audio processing...");
   const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-  const audioArrayBuffer = await audioBlob.arrayBuffer();
-  const audioArray = new Float32Array(audioArrayBuffer);
 
   try {
-    console.log("Initializing transcriber pipeline...");
-    
-    // Call Supabase Edge Function to get the API key
-    const { data, error } = await supabase.functions.invoke('get-huggingface-key');
-    if (error) throw new Error('Failed to get API key');
+    // Create FormData with the audio file
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.wav');
+    formData.append('model', 'whisper-1');
+    formData.append('language', 'en');
 
-    const transcriber = await pipeline(
-      "automatic-speech-recognition",
-      "onnx-community/whisper-tiny.en",
-      { 
-        device: "cpu" as const,
-        apiKey: data.apiKey
-      }
-    );
+    console.log("Sending audio to transcription service...");
+    const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+      body: formData,
+    });
 
-    console.log("Transcribing audio...");
-    const transcription = await transcriber(audioArray);
-    const transcriptionText = typeof transcription === 'string' 
-      ? transcription 
-      : Array.isArray(transcription) 
-        ? transcription[0]?.text || ''
-        : transcription.text || '';
+    if (error) {
+      console.error("Transcription error:", error);
+      throw error;
+    }
 
-    console.log("Transcription completed:", transcriptionText);
+    console.log("Transcription completed:", data);
+    const transcriptionText = data.text;
 
     return {
       transcriptionText,
