@@ -24,6 +24,11 @@ serve(async (req) => {
 
     console.log("Received audio file:", audioFile.name, "type:", audioFile.type, "size:", audioFile.size)
 
+    // Create a new FormData for the Whisper API
+    const whisperFormData = new FormData()
+    whisperFormData.append('file', audioFile)
+    whisperFormData.append('model', 'whisper-1')  // Explicitly set the Whisper model
+
     // Step 1: Transcribe audio to text using Whisper
     console.log("Step 1: Transcribing audio with Whisper...")
     const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
@@ -31,7 +36,7 @@ serve(async (req) => {
       headers: {
         'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
       },
-      body: formData
+      body: whisperFormData
     });
 
     if (!transcriptionResponse.ok) {
