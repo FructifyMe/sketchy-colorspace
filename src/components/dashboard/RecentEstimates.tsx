@@ -14,6 +14,8 @@ interface RecentEstimatesProps {
 const RecentEstimates = ({ estimates, isLoading }: RecentEstimatesProps) => {
   const navigate = useNavigate();
 
+  console.log('RecentEstimates rendering with estimates:', estimates?.length);
+
   return (
     <Card>
       <CardHeader>
@@ -34,24 +36,27 @@ const RecentEstimates = ({ estimates, isLoading }: RecentEstimatesProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {estimates.map((estimate) => (
-                <TableRow 
-                  key={estimate.id}
-                  className="cursor-pointer hover:bg-muted"
-                  onClick={() => navigate(`/estimates/${estimate.id}`)}
-                >
-                  <TableCell>{estimate.description || 'No description'}</TableCell>
-                  <TableCell>
-                    {estimate.client_info ? 
-                      (estimate.client_info as any).name || 'No client name' 
-                      : 'No client info'}
-                  </TableCell>
-                  <TableCell className="capitalize">{estimate.status}</TableCell>
-                  <TableCell>
-                    {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {estimates.map((estimate) => {
+                console.log('Rendering estimate row:', estimate.id);
+                return (
+                  <TableRow 
+                    key={estimate.id}
+                    className="cursor-pointer hover:bg-muted"
+                    onClick={() => navigate(`/estimates/${estimate.id}`)}
+                  >
+                    <TableCell>{estimate.description || 'No description'}</TableCell>
+                    <TableCell>
+                      {estimate.client_info ? 
+                        (estimate.client_info as any).name || 'No client name' 
+                        : 'No client info'}
+                    </TableCell>
+                    <TableCell className="capitalize">{estimate.status}</TableCell>
+                    <TableCell>
+                      {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         ) : (

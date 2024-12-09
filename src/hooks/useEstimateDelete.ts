@@ -8,32 +8,47 @@ export const useEstimateDelete = (id: string) => {
 
   return useMutation({
     mutationFn: async () => {
-      console.log('Deleting estimate:', id);
-      const { error } = await supabase
+      console.log('Starting deletion of estimate:', id);
+      const { data, error } = await supabase
         .from('estimates')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error in deletion query:', error);
+        throw error;
+      }
+
+      console.log('Deletion successful, deleted data:', data);
+      return data;
     },
-    onSuccess: () => {
-      console.log('Successfully deleted estimate:', id);
+    onSuccess: (data) => {
+      console.log('Deletion mutation succeeded, invalidating queries');
+      
+      // Immediately remove the estimate from the cache
+      queryClient.setQueryData(['estimates'], (oldData: any) => {
+        console.log('Updating estimates cache, removing id:', id);
+        if (!oldData) return oldData;
+        return oldData.filter((estimate: any) => estimate.id !== id);
+      });
+
+      // Also invalidate the queries to refetch fresh data
+      queryClient.invalidateQueries({ queryKey: ['estimates'] });
+      queryClient.invalidateQueries({ queryKey: ['estimate', id] });
+      
       toast({
         title: "Estimate deleted",
         description: "The estimate has been successfully deleted",
       });
       
-      // Invalidate both the specific estimate and the estimates list queries
-      queryClient.invalidateQueries({ queryKey: ['estimates'] });
-      queryClient.invalidateQueries({ queryKey: ['estimate', id] });
-      
-      console.log('Invalidated queries for estimates');
+      console.log('Cache updated and queries invalidated');
     },
     onError: (error) => {
-      console.error('Error deleting estimate:', error);
+      console.error('Error in deletion mutation:', error);
       toast({
         title: "Error",
-        description: "Failed to delete the estimate",
+        description: "Failed to delete the estimate. Please try again.",
         variant: "destructive",
       });
     },
