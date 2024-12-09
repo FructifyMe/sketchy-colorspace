@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EstimateItemForm from "../EstimateItemForm";
 import type { EstimateItem } from "@/types/estimate";
 
@@ -24,14 +25,6 @@ const EstimateItemsSection = ({
     }, 0);
   };
 
-  const calculateSubtotal = () => {
-    return calculateTotal();
-  };
-
-  const calculateTax = () => {
-    return calculateSubtotal() * 0.05; // 5% tax rate
-  };
-
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString('en-US', {
       style: 'currency',
@@ -42,69 +35,59 @@ const EstimateItemsSection = ({
   };
 
   return (
-    <div className="space-y-4 print:space-y-2">
-      {isEditing ? (
-        <div className="print:hidden">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Items</h3>
-            <Button onClick={onAddItem} variant="outline">
-              Add Item
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {items.map((item, index) => (
-              <EstimateItemForm
-                key={index}
-                item={item}
-                index={index}
-                onUpdate={onUpdateItem}
-                onRemove={onRemoveItem}
-              />
-            ))}
-          </div>
+    <Card className="print:shadow-none print:border-none">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Items</CardTitle>
+        {isEditing && (
+          <Button onClick={onAddItem} variant="outline" className="print:hidden">
+            Add Item
+          </Button>
+        )}
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {items.map((item, index) => (
+            <div key={index}>
+              {isEditing ? (
+                <EstimateItemForm
+                  item={item}
+                  index={index}
+                  onUpdate={onUpdateItem}
+                  onRemove={onRemoveItem}
+                />
+              ) : (
+                <div className="border p-4 rounded-lg space-y-2 print:border-none print:p-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-medium">{item.name}</h4>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">{formatCurrency(item.price || 0)}</p>
+                      <p className="text-sm text-gray-600">Qty: {item.quantity || 0}</p>
+                    </div>
+                  </div>
+                  {item.quantity && item.price && (
+                    <p className="text-sm text-right text-gray-600">
+                      Subtotal: {formatCurrency(item.quantity * item.price)}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+          {items.length === 0 && (
+            <p className="text-gray-500 italic">No items added yet.</p>
+          )}
+          {items.length > 0 && (
+            <div className="mt-6 pt-4 border-t">
+              <p className="text-right font-medium text-lg">
+                Total: {formatCurrency(calculateTotal())}
+              </p>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-[#003087] text-white">
-                <th className="py-2 px-4 text-left">QTY</th>
-                <th className="py-2 px-4 text-left">Description</th>
-                <th className="py-2 px-4 text-right">Unit Price</th>
-                <th className="py-2 px-4 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, index) => (
-                <tr key={index} className="border-b">
-                  <td className="py-2 px-4">{item.quantity}</td>
-                  <td className="py-2 px-4">{item.name}</td>
-                  <td className="py-2 px-4 text-right">{formatCurrency(item.price || 0)}</td>
-                  <td className="py-2 px-4 text-right">
-                    {formatCurrency((item.quantity || 0) * (item.price || 0))}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          <div className="mt-4 space-y-2">
-            <div className="flex justify-between border-t pt-2">
-              <span className="font-medium">Subtotal</span>
-              <span>{formatCurrency(calculateSubtotal())}</span>
-            </div>
-            <div className="flex justify-between border-t pt-2">
-              <span className="font-medium">Sales Tax (5%)</span>
-              <span>{formatCurrency(calculateTax())}</span>
-            </div>
-            <div className="flex justify-between border-t border-double border-t-2 pt-2 font-bold">
-              <span>Total (USD)</span>
-              <span>{formatCurrency(calculateTotal() + calculateTax())}</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

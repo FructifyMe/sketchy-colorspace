@@ -1,6 +1,7 @@
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 
 interface EstimateAdditionalDetailsProps {
@@ -31,33 +32,35 @@ const EstimateAdditionalDetails = ({
   onUpdate,
 }: EstimateAdditionalDetailsProps) => {
   return (
-    <div className="space-y-6 print:space-y-4">
+    <div className="space-y-6">
       {expirationDate && (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           Valid until: {format(new Date(expirationDate), 'PPP')}
         </div>
       )}
 
       {notes && (
-        <div className="print:border-t print:pt-4">
-          {isEditing ? (
-            <Textarea
-              value={notes}
-              onChange={(e) => onUpdate({ notes: e.target.value })}
-              placeholder="Add notes..."
-              className="min-h-[100px]"
-            />
-          ) : (
-            <div className="space-y-2">
-              <h3 className="font-medium">Notes</h3>
-              <p className="text-gray-600 whitespace-pre-wrap">{notes}</p>
-            </div>
-          )}
-        </div>
+        <Card className="print:shadow-none print:border-none">
+          <CardHeader>
+            <CardTitle>Notes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isEditing ? (
+              <Textarea
+                value={notes}
+                onChange={(e) => onUpdate({ notes: e.target.value })}
+                placeholder="Add notes..."
+                className="min-h-[100px]"
+              />
+            ) : (
+              <p className="whitespace-pre-wrap">{notes}</p>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {isEditing && (
-        <div className="flex items-center space-x-4 print:hidden">
+        <div className="flex items-center space-x-4">
           <Switch
             id="show-terms"
             checked={showTerms}
@@ -74,47 +77,45 @@ const EstimateAdditionalDetails = ({
         </div>
       )}
 
-      {showTerms && terms && (
-        <div className="print:border-t print:pt-4">
-          {isEditing ? (
-            <Textarea
-              value={terms}
-              onChange={(e) => onUpdate({ terms: e.target.value })}
-              placeholder="Enter terms and conditions..."
-              className="min-h-[100px]"
-            />
-          ) : (
-            <div className="space-y-2">
-              <h3 className="font-medium">Terms & Conditions</h3>
-              <p className="text-gray-600 whitespace-pre-wrap">{terms}</p>
-            </div>
-          )}
-        </div>
+      {showTerms && (
+        <Card className="print:shadow-none print:border-none">
+          <CardHeader>
+            <CardTitle>Terms & Conditions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isEditing ? (
+              <Textarea
+                value={terms || ''}
+                onChange={(e) => onUpdate({ terms: e.target.value })}
+                placeholder="Enter terms and conditions..."
+                className="min-h-[100px]"
+              />
+            ) : (
+              <p className="whitespace-pre-wrap">{terms}</p>
+            )}
+          </CardContent>
+        </Card>
       )}
 
-      {showPaymentPolicy && paymentPolicy && (
-        <div className="print:border-t print:pt-4">
-          {isEditing ? (
-            <Textarea
-              value={paymentPolicy}
-              onChange={(e) => onUpdate({ paymentPolicy: e.target.value })}
-              placeholder="Enter payment policy..."
-              className="min-h-[100px]"
-            />
-          ) : (
-            <div className="space-y-2">
-              <h3 className="font-medium">Payment Policy</h3>
-              <p className="text-gray-600 whitespace-pre-wrap">{paymentPolicy}</p>
-            </div>
-          )}
-        </div>
+      {showPaymentPolicy && (
+        <Card className="print:shadow-none print:border-none">
+          <CardHeader>
+            <CardTitle>Payment Policy</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isEditing ? (
+              <Textarea
+                value={paymentPolicy || ''}
+                onChange={(e) => onUpdate({ paymentPolicy: e.target.value })}
+                placeholder="Enter payment policy..."
+                className="min-h-[100px]"
+              />
+            ) : (
+              <p className="whitespace-pre-wrap">{paymentPolicy}</p>
+            )}
+          </CardContent>
+        </Card>
       )}
-
-      <div className="mt-16 print:block hidden border-t pt-8">
-        <div className="w-64 border-t border-black mx-auto text-center pt-2">
-          Customer Signature
-        </div>
-      </div>
     </div>
   );
 };
