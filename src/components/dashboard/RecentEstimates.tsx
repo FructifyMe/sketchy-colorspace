@@ -78,7 +78,7 @@ const RecentEstimates = ({ estimates, isLoading }: RecentEstimatesProps) => {
                       {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
                     </TableCell>
                     <TableCell>
-                      <DeleteEstimateDialog onDelete={() => handleDelete()} />
+                      <DeleteEstimateDialog onDelete={handleDelete} />
                     </TableCell>
                   </TableRow>
                 );
