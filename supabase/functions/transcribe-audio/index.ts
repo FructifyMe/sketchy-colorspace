@@ -49,7 +49,7 @@ serve(async (req) => {
     const transcribedText = transcriptionResult.text;
     console.log("Transcription result:", transcribedText);
 
-    // Step 2: Process with GPT-4 using enhanced prompt for better note extraction
+    // Step 2: Process with GPT-4 using enhanced prompt for better email extraction
     console.log("Step 2: Processing with GPT-4o-mini...");
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -63,13 +63,20 @@ serve(async (req) => {
           {
             role: "system",
             content: `You are an AI assistant specialized in extracting estimate information from verbal descriptions.
-            Your primary focus is to carefully separate the core estimate details from any special instructions, requirements, or notes.
+            Your primary focus is to carefully extract and validate contact information, especially email addresses.
+            
+            When processing email addresses:
+            1. Always include the @ symbol
+            2. Ensure there's a valid domain extension (e.g., .com, .net, .org)
+            3. Remove any spaces or invalid characters
+            4. If an email is mentioned like "dave at microsoft dot com", convert it to proper format "dave@microsoft.com"
+            5. If the email format is unclear or invalid, leave it as null rather than guessing
             
             Extract and categorize the information as follows:
 
             1. Client Information:
                - Name (required)
-               - Email (if mentioned)
+               - Email (must be properly formatted with @ and domain, or null if invalid)
                - Phone (if mentioned)
                - Address (if mentioned)
 
@@ -77,20 +84,19 @@ serve(async (req) => {
                - Main description: A clear, concise summary of the primary work to be done
                - Line items: Each distinct service or product with quantity and price
 
-            3. Notes and Special Instructions (VERY IMPORTANT):
-               Carefully identify and extract ANY of the following:
-               - Access instructions (how to enter, where to park, etc.)
-               - Special requirements (cleaning shoes, specific timing, etc.)
-               - Client preferences (color choices, specific materials, etc.)
+            3. Notes and Special Instructions:
+               - Access instructions
+               - Special requirements
+               - Client preferences
                - Safety considerations
                - Environmental considerations
-               - Any other instructions or requests that aren't part of the actual work items
+               - Any other relevant instructions
 
             Format the response as a JSON object with this exact structure:
             {
               "clientInfo": {
                 "name": "string or null",
-                "email": "string or null",
+                "email": "properly formatted email or null",
                 "phone": "string or null",
                 "address": "string or null"
               },
@@ -102,16 +108,14 @@ serve(async (req) => {
                   "price": number
                 }
               ],
-              "notes": "string containing ALL special instructions, requirements, and additional details that aren't part of the work items"
+              "notes": "string containing ALL special instructions and additional details"
             }
 
-            IMPORTANT: The notes field should capture ANY instructions or requests that aren't directly related to the work items or pricing.
-            Examples of what should go in notes:
-            - "Please enter through the back door"
-            - "Need to complete work before 3pm"
-            - "Must wear shoe covers"
-            - "Call before arriving"
-            These are crucial details that need to be captured separately from the work description.`
+            Example of proper email handling:
+            - Input: "dave at msn dot com" -> Output: "dave@msn.com"
+            - Input: "davebatmsn.com" -> Output: null (invalid format)
+            - Input: "dave@msn" -> Output: null (incomplete domain)
+            `
           },
           {
             role: "user",
@@ -136,6 +140,16 @@ serve(async (req) => {
     try {
       structuredData = JSON.parse(extractionResult.choices[0].message.content);
       console.log("Parsed structured data:", structuredData);
+      
+      // Additional validation for email format
+      if (structuredData.clientInfo?.email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(structuredData.clientInfo.email)) {
+          console.log("Invalid email format detected, setting to null:", structuredData.clientInfo.email);
+          structuredData.clientInfo.email = null;
+        }
+      }
+      
     } catch (error) {
       console.error("Error parsing GPT response:", error);
       throw new Error("Failed to parse structured data from GPT response");
