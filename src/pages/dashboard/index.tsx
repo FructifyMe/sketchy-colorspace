@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
 import CreateTemplateDialog from "@/components/CreateTemplateDialog";
-import BusinessSettingsForm from "@/components/BusinessSettingsForm";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import TemplateList from "@/components/dashboard/TemplateList";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatDistanceToNow } from "date-fns";
-import { useNavigate } from "react-router-dom";
+import RecentEstimates from "@/components/dashboard/RecentEstimates";
+import DashboardTemplates from "@/components/dashboard/DashboardTemplates";
+import BusinessSettingsCard from "@/components/dashboard/BusinessSettingsCard";
 
 type Template = Database['public']['Tables']['templates']['Row'] & {
   template_data: {
@@ -21,13 +18,10 @@ type Template = Database['public']['Tables']['templates']['Row'] & {
   };
 };
 
-type Estimate = Database['public']['Tables']['estimates']['Row'];
-
 const DashboardPage = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   
   const { data: templates, isLoading: templatesLoading, error: templatesError } = useQuery({
@@ -62,9 +56,8 @@ const DashboardPage = () => {
       }
 
       console.log("Fetched estimates:", data);
-      return data as Estimate[];
+      return data as Database['public']['Tables']['estimates']['Row'][];
     },
-    // Add staleTime to prevent unnecessary refetches
     staleTime: 1000,
   });
 
@@ -90,7 +83,6 @@ const DashboardPage = () => {
         description: `Successfully deleted ${template.name}`,
       });
       
-      // Invalidate templates query to refresh the list
       queryClient.invalidateQueries({ queryKey: ['templates'] });
     } catch (error) {
       console.error("Error deleting template:", error);
@@ -119,68 +111,14 @@ const DashboardPage = () => {
         onToggleSettings={() => setShowSettings(!showSettings)}
       />
 
-      {showSettings && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Business Settings</CardTitle>
-            <CardDescription>
-              Manage your company information that will appear on all templates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BusinessSettingsForm />
-          </CardContent>
-        </Card>
-      )}
+      {showSettings && <BusinessSettingsCard />}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Estimates</CardTitle>
-          <CardDescription>View and manage your estimates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {estimatesLoading ? (
-            <div>Loading estimates...</div>
-          ) : estimates && estimates.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {estimates.map((estimate) => (
-                  <TableRow 
-                    key={estimate.id}
-                    className="cursor-pointer hover:bg-muted"
-                    onClick={() => navigate(`/estimates/${estimate.id}`)}
-                  >
-                    <TableCell>{estimate.description || 'No description'}</TableCell>
-                    <TableCell>
-                      {estimate.client_info ? 
-                        (estimate.client_info as any).name || 'No client name' 
-                        : 'No client info'}
-                    </TableCell>
-                    <TableCell className="capitalize">{estimate.status}</TableCell>
-                    <TableCell>
-                      {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="text-center py-4 text-muted-foreground">
-              No estimates found. Create your first estimate to get started.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <RecentEstimates 
+        estimates={estimates} 
+        isLoading={estimatesLoading} 
+      />
 
-      <TemplateList
+      <DashboardTemplates
         templates={templates}
         isLoading={templatesLoading}
         onSelect={handleTemplateSelect}
