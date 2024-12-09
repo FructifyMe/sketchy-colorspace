@@ -1,43 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface ClientInfo {
-  name?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-}
+import type { EstimateClientInfo } from "@/types/estimateDetail";
 
 interface EstimateClientInfoProps {
-  clientInfo: ClientInfo | null;
+  clientInfo: EstimateClientInfo | null;
 }
 
 const EstimateClientInfo = ({ clientInfo }: EstimateClientInfoProps) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Client Information</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <dl className="grid grid-cols-2 gap-4">
-          <div>
-            <dt className="font-medium text-gray-500">Name</dt>
-            <dd>{clientInfo?.name || 'N/A'}</dd>
-          </div>
-          <div>
-            <dt className="font-medium text-gray-500">Email</dt>
-            <dd>{clientInfo?.email || 'N/A'}</dd>
-          </div>
-          <div>
-            <dt className="font-medium text-gray-500">Phone</dt>
-            <dd>{clientInfo?.phone || 'N/A'}</dd>
-          </div>
-          <div>
-            <dt className="font-medium text-gray-500">Address</dt>
-            <dd>{clientInfo?.address || 'N/A'}</dd>
-          </div>
-        </dl>
-      </CardContent>
-    </Card>
+    <div className="mb-8">
+      <h2 className="text-sm font-semibold text-gray-600 mb-2">Bill To</h2>
+      <div className="space-y-1">
+        <p className="font-medium text-lg">{clientInfo?.name || 'N/A'}</p>
+        <p className="text-gray-600">{clientInfo?.address || 'N/A'}</p>
+        <p className="text-gray-600">{clientInfo?.phone || 'N/A'}</p>
+        <p className="text-gray-600">{clientInfo?.email || 'N/A'}</p>
+      </div>
+    </div>
   );
 };
 
