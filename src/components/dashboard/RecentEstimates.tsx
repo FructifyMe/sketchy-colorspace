@@ -41,47 +41,46 @@ const RecentEstimates = ({ estimates, isLoading }: RecentEstimatesProps) => {
             <TableBody>
               {estimates.map((estimate) => {
                 console.log('Rendering estimate row:', estimate.id);
-                // Create a delete handler for this specific estimate
-                const handleDelete = () => {
+                
+                // Create a component for each row to properly scope the hook
+                const EstimateRow = () => {
                   const { mutate } = useEstimateDelete(estimate.id);
-                  mutate();
+                  return (
+                    <TableRow key={estimate.id}>
+                      <TableCell 
+                        className="cursor-pointer hover:bg-muted"
+                        onClick={() => navigate(`/estimates/${estimate.id}`)}
+                      >
+                        {estimate.description || 'No description'}
+                      </TableCell>
+                      <TableCell 
+                        className="cursor-pointer hover:bg-muted"
+                        onClick={() => navigate(`/estimates/${estimate.id}`)}
+                      >
+                        {estimate.client_info ? 
+                          (estimate.client_info as any).name || 'No client name' 
+                          : 'No client info'}
+                      </TableCell>
+                      <TableCell 
+                        className="cursor-pointer hover:bg-muted capitalize"
+                        onClick={() => navigate(`/estimates/${estimate.id}`)}
+                      >
+                        {estimate.status}
+                      </TableCell>
+                      <TableCell 
+                        className="cursor-pointer hover:bg-muted"
+                        onClick={() => navigate(`/estimates/${estimate.id}`)}
+                      >
+                        {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
+                      </TableCell>
+                      <TableCell>
+                        <DeleteEstimateDialog onDelete={() => mutate()} />
+                      </TableCell>
+                    </TableRow>
+                  );
                 };
                 
-                return (
-                  <TableRow 
-                    key={estimate.id}
-                  >
-                    <TableCell 
-                      className="cursor-pointer hover:bg-muted"
-                      onClick={() => navigate(`/estimates/${estimate.id}`)}
-                    >
-                      {estimate.description || 'No description'}
-                    </TableCell>
-                    <TableCell 
-                      className="cursor-pointer hover:bg-muted"
-                      onClick={() => navigate(`/estimates/${estimate.id}`)}
-                    >
-                      {estimate.client_info ? 
-                        (estimate.client_info as any).name || 'No client name' 
-                        : 'No client info'}
-                    </TableCell>
-                    <TableCell 
-                      className="cursor-pointer hover:bg-muted capitalize"
-                      onClick={() => navigate(`/estimates/${estimate.id}`)}
-                    >
-                      {estimate.status}
-                    </TableCell>
-                    <TableCell 
-                      className="cursor-pointer hover:bg-muted"
-                      onClick={() => navigate(`/estimates/${estimate.id}`)}
-                    >
-                      {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
-                    </TableCell>
-                    <TableCell>
-                      <DeleteEstimateDialog onDelete={handleDelete} />
-                    </TableCell>
-                  </TableRow>
-                );
+                return <EstimateRow key={estimate.id} />;
               })}
             </TableBody>
           </Table>
