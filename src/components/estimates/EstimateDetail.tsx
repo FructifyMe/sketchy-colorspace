@@ -1,24 +1,16 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useState } from 'react';
-import EstimateClientInfo from './EstimateClientInfo';
-import EstimateItemsSection from './EstimateItemsSection';
-import EstimateHeader from './EstimateHeader';
-import EstimatePrintHeader from './EstimatePrintHeader';
-import EstimateStatus from './EstimateStatus';
-import EstimateAdditionalDetails from './EstimateAdditionalDetails';
-import EstimateDescription from './EstimateDescription';
-import EstimateSignature from './EstimateSignature';
-import EstimateNotes from './EstimateNotes';
 import { useEstimateOperations } from '@/hooks/useEstimateOperations';
 import type { Estimate, EstimateItem } from '@/types/estimateDetail';
 import { parseClientInfo, parseItems } from '@/types/estimateDetail';
 import html2pdf from 'html2pdf.js';
+import EstimateActions from './EstimateActions';
+import EstimateContent from './EstimateContent';
 
 const EstimateDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const { deleteMutation, updateMutation, handleUpdateItem: baseHandleUpdateItem, handleRemoveItem: baseHandleRemoveItem, handleAddItem: baseHandleAddItem } = useEstimateOperations(id!);
 
@@ -135,45 +127,23 @@ const EstimateDetail = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <EstimateHeader
+      <EstimateActions
+        estimate={estimate}
         isEditing={isEditing}
         onToggleEdit={() => setIsEditing(!isEditing)}
         onDelete={() => deleteMutation.mutate()}
-        onNavigateBack={() => navigate('/dashboard')}
-        estimateId={estimate.id}
         onDownloadPDF={handleDownloadPDF}
       />
 
-      <div id="estimate-content" className="space-y-6 print:space-y-4 print:p-6">
-        <EstimatePrintHeader businessSettings={estimate.business_settings} />
-        <EstimateClientInfo clientInfo={estimate.client_info} />
-        <EstimateDescription description={estimate.description} />
-        <EstimateItemsSection
-          items={estimate.items}
+      <div id="estimate-content">
+        <EstimateContent
+          estimate={estimate}
           isEditing={isEditing}
           onUpdateItem={handleUpdateItem}
           onRemoveItem={handleRemoveItem}
           onAddItem={handleAddItem}
+          onUpdateDetails={handleUpdateDetails}
         />
-        <EstimateStatus 
-          status={estimate.status} 
-          createdAt={estimate.created_at} 
-        />
-        <EstimateNotes
-          notes={estimate.notes}
-          isEditing={isEditing}
-          onUpdate={(notes) => handleUpdateDetails({ notes })}
-        />
-        <EstimateAdditionalDetails
-          terms={estimate.terms_and_conditions}
-          paymentPolicy={estimate.payment_policy}
-          showTerms={estimate.show_terms}
-          showPaymentPolicy={estimate.show_payment_policy}
-          expirationDate={estimate.expiration_date}
-          isEditing={isEditing}
-          onUpdate={handleUpdateDetails}
-        />
-        <EstimateSignature />
       </div>
     </div>
   );
