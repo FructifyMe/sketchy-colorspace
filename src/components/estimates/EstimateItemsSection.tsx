@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EstimateItemForm from "../EstimateItemForm";
 import type { EstimateItem } from "@/types/estimate";
 
@@ -35,59 +34,77 @@ const EstimateItemsSection = ({
   };
 
   return (
-    <Card className="print:shadow-none print:border-none">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Items</CardTitle>
+    <div className="print:mb-8">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold print:text-xl">Items</h2>
         {isEditing && (
           <Button onClick={onAddItem} variant="outline" className="print:hidden">
             Add Item
           </Button>
         )}
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {items.map((item, index) => (
-            <div key={index}>
-              {isEditing ? (
-                <EstimateItemForm
-                  item={item}
-                  index={index}
-                  onUpdate={onUpdateItem}
-                  onRemove={onRemoveItem}
-                />
-              ) : (
-                <div className="border p-4 rounded-lg space-y-2 print:border-none print:p-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-medium">{item.name}</h4>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{formatCurrency(item.price || 0)}</p>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity || 0}</p>
-                    </div>
-                  </div>
-                  {item.quantity && item.price && (
-                    <p className="text-sm text-right text-gray-600">
-                      Subtotal: {formatCurrency(item.quantity * item.price)}
-                    </p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-2 print:text-sm">Description</th>
+                <th className="text-right py-2 print:text-sm">Quantity</th>
+                <th className="text-right py-2 print:text-sm">Price</th>
+                <th className="text-right py-2 print:text-sm">Total</th>
+                {isEditing && <th className="print:hidden"></th>}
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={index} className="border-b">
+                  {isEditing ? (
+                    <td colSpan={4}>
+                      <EstimateItemForm
+                        item={item}
+                        index={index}
+                        onUpdate={onUpdateItem}
+                        onRemove={onRemoveItem}
+                      />
+                    </td>
+                  ) : (
+                    <>
+                      <td className="py-2 print:text-sm">{item.name}</td>
+                      <td className="text-right py-2 print:text-sm">{item.quantity}</td>
+                      <td className="text-right py-2 print:text-sm">{formatCurrency(item.price || 0)}</td>
+                      <td className="text-right py-2 print:text-sm">
+                        {formatCurrency((item.quantity || 0) * (item.price || 0))}
+                      </td>
+                    </>
                   )}
-                </div>
-              )}
-            </div>
-          ))}
-          {items.length === 0 && (
-            <p className="text-gray-500 italic">No items added yet.</p>
-          )}
-          {items.length > 0 && (
-            <div className="mt-6 pt-4 border-t">
-              <p className="text-right font-medium text-lg">
-                Total: {formatCurrency(calculateTotal())}
-              </p>
-            </div>
-          )}
+                  {isEditing && (
+                    <td className="print:hidden">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => onRemoveItem(index)}
+                      >
+                        Remove
+                      </Button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-gray-900">
+                <td colSpan={3} className="py-2 text-right font-semibold print:text-sm">Total:</td>
+                <td className="py-2 text-right font-semibold print:text-sm">
+                  {formatCurrency(calculateTotal())}
+                </td>
+                {isEditing && <td className="print:hidden"></td>}
+              </tr>
+            </tfoot>
+          </table>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

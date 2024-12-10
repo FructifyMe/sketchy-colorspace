@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EstimateClientInfo from './EstimateClientInfo';
 import EstimateItemsSection from './EstimateItemsSection';
 import EstimateHeader from './EstimateHeader';
@@ -21,7 +20,7 @@ const EstimateDetail = () => {
   const { deleteMutation, updateMutation, handleUpdateItem, handleRemoveItem, handleAddItem } = useEstimateOperations(id!);
 
   const handleDownloadPDF = () => {
-    console.log('Downloading PDF directly...');
+    console.log('Downloading PDF...');
     const element = document.getElementById('estimate-content');
     if (!element) return;
     
@@ -44,7 +43,6 @@ const EstimateDetail = () => {
     showPaymentPolicy?: boolean;
   }) => {
     if (!estimate) return;
-
     updateMutation.mutate({
       ...estimate,
       terms_and_conditions: updates.terms ?? estimate.terms_and_conditions,
@@ -59,45 +57,25 @@ const EstimateDetail = () => {
     queryKey: ['estimate', id],
     queryFn: async () => {
       console.log('Fetching estimate:', id);
-      
-      // First, fetch the estimate
       const { data: estimateData, error: estimateError } = await supabase
         .from('estimates')
         .select('*')
         .eq('id', id)
         .single();
 
-      if (estimateError) {
-        console.error("Error fetching estimate:", estimateError);
-        throw estimateError;
-      }
+      if (estimateError) throw estimateError;
+      if (!estimateData) throw new Error('Estimate not found');
 
-      if (!estimateData) {
-        throw new Error('Estimate not found');
-      }
-
-      console.log('Raw estimate data:', estimateData);
-
-      // Then, fetch the business settings
       const { data: businessSettingsData, error: businessSettingsError } = await supabase
         .from('business_settings')
         .select('*')
         .eq('user_id', estimateData.user_id)
         .single();
 
-      if (businessSettingsError) {
-        console.error("Error fetching business settings:", businessSettingsError);
-        throw businessSettingsError;
-      }
+      if (businessSettingsError) throw businessSettingsError;
+      if (!businessSettingsData) throw new Error('Business settings not found');
 
-      if (!businessSettingsData) {
-        console.error('No business settings found for user');
-        throw new Error('Business settings not found');
-      }
-
-      console.log('Business settings data:', businessSettingsData);
-
-      const parsedData: Estimate = {
+      return {
         ...estimateData,
         client_info: parseClientInfo(estimateData.client_info),
         items: parseItems(estimateData.items),
@@ -114,16 +92,10 @@ const EstimateDetail = () => {
           email: businessSettingsData.email || null,
         },
       };
-
-      console.log('Parsed estimate data:', parsedData);
-      return parsedData;
     }
   });
 
-  if (isLoading) {
-    return <div className="container mx-auto p-6">Loading...</div>;
-  }
-
+  if (isLoading) return <div className="container mx-auto p-6">Loading...</div>;
   if (error) {
     return (
       <div className="container mx-auto p-6">
@@ -133,7 +105,6 @@ const EstimateDetail = () => {
       </div>
     );
   }
-
   if (!estimate) {
     return (
       <div className="container mx-auto p-6">
@@ -155,21 +126,17 @@ const EstimateDetail = () => {
         onDownloadPDF={handleDownloadPDF}
       />
 
-      <div id="estimate-content" className="space-y-6 print:space-y-4">
+      <div id="estimate-content" className="space-y-6 print:space-y-4 print:p-6">
         <EstimatePrintHeader businessSettings={estimate.business_settings} />
 
-        <EstimateClientInfo clientInfo={estimate.client_info} />
+        <div className="print:mb-8">
+          <EstimateClientInfo clientInfo={estimate.client_info} />
+        </div>
 
-        <h2 className="text-2xl font-semibold mb-4">Estimate</h2>
-
-        <Card className="print:shadow-none print:border-none">
-          <CardHeader>
-            <CardTitle>Description</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{estimate.description || 'No description provided'}</p>
-          </CardContent>
-        </Card>
+        <div className="print:mb-8">
+          <h2 className="text-2xl font-semibold mb-4 print:text-xl">Estimate Details</h2>
+          <p className="text-gray-700 print:text-sm">{estimate.description || 'No description provided'}</p>
+        </div>
 
         <EstimateItemsSection
           items={estimate.items}
@@ -194,6 +161,11 @@ const EstimateDetail = () => {
           isEditing={isEditing}
           onUpdate={handleUpdateDetails}
         />
+
+        <div className="print:mt-16 print:border-t print:pt-8 print:text-sm">
+          <p className="mb-8">Signature: _______________________________</p>
+          <p>Date: _______________________________</p>
+        </div>
       </div>
     </div>
   );
