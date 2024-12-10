@@ -72,7 +72,7 @@ const EstimateDetail = () => {
         .from('estimates')
         .select(`
           *,
-          business_settings (
+          business_settings!inner (
             company_name,
             company_logo,
             company_header,
@@ -85,7 +85,7 @@ const EstimateDetail = () => {
           )
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (estimateError) throw estimateError;
       if (!estimateData) throw new Error('Estimate not found');
@@ -98,16 +98,16 @@ const EstimateDetail = () => {
         items: parseItems(estimateData.items),
         status: estimateData.status || 'draft',
         notes: estimateData.notes,
-        business_settings: {
-          company_name: estimateData.business_settings?.company_name || null,
-          company_logo: estimateData.business_settings?.company_logo || null,
-          company_header: estimateData.business_settings?.company_header || null,
-          address: estimateData.business_settings?.address || null,
-          city: estimateData.business_settings?.city || null,
-          state: estimateData.business_settings?.state || null,
-          zip_code: estimateData.business_settings?.zip_code || null,
-          phone: estimateData.business_settings?.phone || null,
-          email: estimateData.business_settings?.email || null,
+        business_settings: estimateData.business_settings || {
+          company_name: null,
+          company_logo: null,
+          company_header: null,
+          address: null,
+          city: null,
+          state: null,
+          zip_code: null,
+          phone: null,
+          email: null,
         },
       };
     }
