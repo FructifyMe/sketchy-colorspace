@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { EstimateData } from '@/types/estimate';
-import { toSupabaseJson } from '@/types/estimate';
+import { estimateService, EstimateServiceError } from '@/services/estimateService';
 
 export const useEstimateFormSubmit = () => {
   const navigate = useNavigate();
@@ -15,26 +15,11 @@ export const useEstimateFormSubmit = () => {
     
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
+      if (!user) {
+        throw new Error("Authentication required");
+      }
 
-      console.log("Saving estimate:", formData);
-      
-      const { data, error } = await supabase
-        .from('estimates')
-        .insert({
-          user_id: user.id,
-          description: formData.description,
-          items: toSupabaseJson(formData.items),
-          client_info: toSupabaseJson(formData.clientInfo),
-          notes: formData.notes || null,
-          status: 'draft'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      console.log("Estimate saved successfully:", data);
+      await estimateService.createEstimate(formData, user.id);
       
       toast({
         title: "Success",
@@ -44,10 +29,15 @@ export const useEstimateFormSubmit = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error("Error saving estimate:", error);
+      
+      const errorMessage = error instanceof EstimateServiceError
+        ? error.message
+        : "Failed to save estimate. Please try again.";
+      
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save estimate. Please try again.",
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
