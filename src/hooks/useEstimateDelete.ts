@@ -8,29 +8,60 @@ export const useEstimateDelete = (id: string) => {
 
   return useMutation({
     mutationFn: async () => {
-      console.log('Deleting estimate:', id);
-      const { error } = await supabase
+      console.log('useEstimateDelete: Starting delete operation for estimate:', id);
+      
+      // First, verify the estimate exists
+      const { data: existingEstimate, error: checkError } = await supabase
         .from('estimates')
-        .delete()
+        .select('id')
+        .eq('id', id)
+        .single();
+
+      if (checkError) {
+        console.error('useEstimateDelete: Error checking estimate:', checkError);
+        throw checkError;
+      }
+
+      if (!existingEstimate) {
+        console.error('useEstimateDelete: Estimate not found:', id);
+        throw new Error('Estimate not found');
+      }
+
+      // Then soft delete it
+      console.log('useEstimateDelete: Soft deleting estimate in database');
+      const { error: deleteError } = await supabase
+        .from('estimates')
+        .update({ deleted: true })
         .eq('id', id);
 
-      if (error) throw error;
+      if (deleteError) {
+        console.error('useEstimateDelete: Error deleting estimate:', deleteError);
+        throw deleteError;
+      }
+
+      console.log('useEstimateDelete: Successfully soft deleted from database');
+
+      // Remove from cache immediately
+      queryClient.setQueryData(['estimates'], (oldData: any[] | undefined) => {
+        if (!oldData) return [];
+        console.log('useEstimateDelete: Removing estimate from cache');
+        return oldData.filter(estimate => estimate.id !== id);
+      });
     },
     onSuccess: () => {
-      console.log('Successfully deleted estimate:', id);
+      console.log('useEstimateDelete: Delete mutation succeeded');
       toast({
         title: "Estimate deleted",
         description: "The estimate has been successfully deleted",
       });
       
-      // Invalidate both the specific estimate and the estimates list queries
+      // Remove from cache and refetch to ensure data is fresh
+      console.log('useEstimateDelete: Cleaning up queries');
+      queryClient.removeQueries({ queryKey: ['estimate', id] });
       queryClient.invalidateQueries({ queryKey: ['estimates'] });
-      queryClient.invalidateQueries({ queryKey: ['estimate', id] });
-      
-      console.log('Invalidated queries for estimates');
     },
     onError: (error) => {
-      console.error('Error deleting estimate:', error);
+      console.error('useEstimateDelete: Error in delete mutation:', error);
       toast({
         title: "Error",
         description: "Failed to delete the estimate",

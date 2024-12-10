@@ -9,6 +9,7 @@ export interface EstimateData {
   description: string;
   items: EstimateItem[];
   clientInfo: EstimateClientInfo;
+  notes?: string;
 }
 
 export const toSupabaseJson = (data: any): Json => {

@@ -26,6 +26,7 @@ export const useEstimateFormSubmit = () => {
           description: formData.description,
           items: toSupabaseJson(formData.items),
           client_info: toSupabaseJson(formData.clientInfo),
+          notes: formData.notes || null,
           status: 'draft'
         })
         .select()
