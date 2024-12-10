@@ -1,10 +1,26 @@
 import { Link } from "react-router-dom";
-import Button from "@/components/Button";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
-  const isLoggedIn = false; // This should be replaced with actual auth state when implemented
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check initial auth state
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleGetStarted = () => {
     navigate("/signup");
@@ -40,7 +56,7 @@ const Index = () => {
             </h1>
             <p className="mt-6 text-lg leading-8 text-emerald-700">
               Built by Fructify LLC, FructiFlow helps contractors, service providers, and small businesses 
-              turn field estimates into polished invoices instantly.
+              turn field estimates into polished estimates and invoices instantly.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Button 
