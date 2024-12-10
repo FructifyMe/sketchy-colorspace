@@ -52,7 +52,7 @@ const EstimateHeader = ({
         <EmailEstimateDialog estimateId={estimateId} />
 
         <Button 
-          variant="secondary"
+          variant={isEditing ? "default" : "secondary"}
           onClick={onToggleEdit}
         >
           {isEditing ? 'Save' : 'Edit'}

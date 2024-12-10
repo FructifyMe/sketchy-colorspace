@@ -55,6 +55,18 @@ const EstimateDetail = () => {
     });
   };
 
+  const handleDelete = async () => {
+    console.log('EstimateDetail: handleDelete called');
+    try {
+      console.log('EstimateDetail: Starting delete mutation');
+      await deleteMutation.mutateAsync();
+      console.log('EstimateDetail: Delete mutation completed successfully');
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      console.error('Error deleting estimate:', error);
+    }
+  };
+
   const { data: estimate, isLoading, error } = useQuery({
     queryKey: ['estimate', id],
     queryFn: async () => {
@@ -149,8 +161,8 @@ const EstimateDetail = () => {
       <EstimateHeader
         isEditing={isEditing}
         onToggleEdit={() => setIsEditing(!isEditing)}
-        onDelete={() => deleteMutation.mutate()}
-        onNavigateBack={() => navigate('/dashboard')}
+        onDelete={handleDelete}
+        onNavigateBack={() => navigate('/dashboard', { replace: true })}
         estimateId={estimate.id}
         onDownloadPDF={handleDownloadPDF}
       />

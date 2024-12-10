@@ -48,6 +48,7 @@ const DashboardPage = () => {
       const { data, error } = await supabase
         .from('estimates')
         .select('*')
+        .is('deleted', false)  // Only fetch non-deleted estimates
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -58,7 +59,11 @@ const DashboardPage = () => {
       console.log("Fetched estimates:", data);
       return data as Database['public']['Tables']['estimates']['Row'][];
     },
-    staleTime: 1000,
+    // Disable caching to always fetch fresh data
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   const handleTemplateSelect = (template: Template) => {

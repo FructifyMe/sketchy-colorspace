@@ -16,6 +16,11 @@ interface DeleteEstimateDialogProps {
 }
 
 const DeleteEstimateDialog = ({ onDelete }: DeleteEstimateDialogProps) => {
+  const handleDelete = () => {
+    console.log('Delete button clicked in dialog');
+    onDelete();
+  };
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -30,7 +35,7 @@ const DeleteEstimateDialog = ({ onDelete }: DeleteEstimateDialogProps) => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onDelete}>
+          <AlertDialogAction onClick={handleDelete}>
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
