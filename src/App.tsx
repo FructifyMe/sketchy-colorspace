@@ -11,6 +11,8 @@ import SigninPage from "./pages/signin";
 import DashboardPage from "./pages/dashboard";
 import EstimateForm from "./components/EstimateForm";
 import EstimateDetail from "./components/estimates/EstimateDetail";
+import './App.css';
+import './styles/print.css';
 
 const queryClient = new QueryClient();
 

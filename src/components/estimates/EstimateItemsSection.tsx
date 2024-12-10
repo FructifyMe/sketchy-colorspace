@@ -36,7 +36,7 @@ const EstimateItemsSection = ({
 
   return (
     <Card className="print:shadow-none print:border-none">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between print:pb-2">
         <CardTitle>Items</CardTitle>
         {isEditing && (
           <Button onClick={onAddItem} variant="outline" className="print:hidden">
@@ -45,7 +45,36 @@ const EstimateItemsSection = ({
         )}
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        {/* Print-optimized table */}
+        <div className="hidden print:block">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="py-2 text-left font-semibold">Description</th>
+                <th className="py-2 text-right font-semibold w-24">Quantity</th>
+                <th className="py-2 text-right font-semibold w-32">Unit Price</th>
+                <th className="py-2 text-right font-semibold w-32">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={index} className="border-b border-gray-100">
+                  <td className="py-2">{item.name}</td>
+                  <td className="py-2 text-right">{item.quantity}</td>
+                  <td className="py-2 text-right">{formatCurrency(item.price)}</td>
+                  <td className="py-2 text-right">{formatCurrency(item.quantity * item.price)}</td>
+                </tr>
+              ))}
+              <tr className="font-semibold">
+                <td colSpan={3} className="py-3 text-right">Total:</td>
+                <td className="py-3 text-right">{formatCurrency(calculateTotal())}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Interactive edit view (hidden in print) */}
+        <div className="print:hidden space-y-4">
           {items.map((item, index) => (
             <div key={index}>
               {isEditing ? (
@@ -56,35 +85,25 @@ const EstimateItemsSection = ({
                   onRemove={onRemoveItem}
                 />
               ) : (
-                <div className="border p-4 rounded-lg space-y-2 print:border-none print:p-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-medium">{item.name}</h4>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{formatCurrency(item.price || 0)}</p>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity || 0}</p>
-                    </div>
-                  </div>
-                  {item.quantity && item.price && (
-                    <p className="text-sm text-right text-gray-600">
-                      Subtotal: {formatCurrency(item.quantity * item.price)}
+                <div className="flex justify-between items-center p-4 border rounded-lg">
+                  <div>
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-sm text-gray-600">
+                      Quantity: {item.quantity} × {formatCurrency(item.price)}
                     </p>
-                  )}
+                  </div>
+                  <p className="font-medium">
+                    {formatCurrency(item.quantity * item.price)}
+                  </p>
                 </div>
               )}
             </div>
           ))}
-          {items.length === 0 && (
-            <p className="text-gray-500 italic">No items added yet.</p>
-          )}
-          {items.length > 0 && (
-            <div className="mt-6 pt-4 border-t">
-              <p className="text-right font-medium text-lg">
-                Total: {formatCurrency(calculateTotal())}
-              </p>
-            </div>
-          )}
+          <div className="flex justify-end border-t pt-4">
+            <p className="font-semibold">
+              Total: {formatCurrency(calculateTotal())}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
