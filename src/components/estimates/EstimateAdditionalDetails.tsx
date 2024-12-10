@@ -7,7 +7,6 @@ import { format } from "date-fns";
 interface EstimateAdditionalDetailsProps {
   terms: string | null;
   paymentPolicy: string | null;
-  notes: string | null;
   showTerms: boolean;
   showPaymentPolicy: boolean;
   expirationDate: string | null;
@@ -15,7 +14,6 @@ interface EstimateAdditionalDetailsProps {
   onUpdate: (updates: {
     terms?: string;
     paymentPolicy?: string;
-    notes?: string;
     showTerms?: boolean;
     showPaymentPolicy?: boolean;
   }) => void;
@@ -24,7 +22,6 @@ interface EstimateAdditionalDetailsProps {
 const EstimateAdditionalDetails = ({
   terms,
   paymentPolicy,
-  notes,
   showTerms,
   showPaymentPolicy,
   expirationDate,
@@ -37,26 +34,6 @@ const EstimateAdditionalDetails = ({
         <div className="text-sm text-muted-foreground">
           Valid until: {format(new Date(expirationDate), 'PPP')}
         </div>
-      )}
-
-      {notes && (
-        <Card className="print:shadow-none print:border-none">
-          <CardHeader>
-            <CardTitle>Notes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isEditing ? (
-              <Textarea
-                value={notes}
-                onChange={(e) => onUpdate({ notes: e.target.value })}
-                placeholder="Add notes..."
-                className="min-h-[100px]"
-              />
-            ) : (
-              <p className="whitespace-pre-wrap">{notes}</p>
-            )}
-          </CardContent>
-        </Card>
       )}
 
       {isEditing && (

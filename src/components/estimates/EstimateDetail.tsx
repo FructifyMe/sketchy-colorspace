@@ -8,6 +8,9 @@ import EstimateHeader from './EstimateHeader';
 import EstimatePrintHeader from './EstimatePrintHeader';
 import EstimateStatus from './EstimateStatus';
 import EstimateAdditionalDetails from './EstimateAdditionalDetails';
+import EstimateDescription from './EstimateDescription';
+import EstimateSignature from './EstimateSignature';
+import EstimateNotes from './EstimateNotes';
 import { useEstimateOperations } from '@/hooks/useEstimateOperations';
 import type { Estimate } from '@/types/estimateDetail';
 import { parseClientInfo, parseItems } from '@/types/estimateDetail';
@@ -128,44 +131,34 @@ const EstimateDetail = () => {
 
       <div id="estimate-content" className="space-y-6 print:space-y-4 print:p-6">
         <EstimatePrintHeader businessSettings={estimate.business_settings} />
-
-        <div className="print:mb-8">
-          <EstimateClientInfo clientInfo={estimate.client_info} />
-        </div>
-
-        <div className="print:mb-8">
-          <h2 className="text-2xl font-semibold mb-4 print:text-xl">Estimate Details</h2>
-          <p className="text-gray-700 print:text-sm">{estimate.description || 'No description provided'}</p>
-        </div>
-
+        <EstimateClientInfo clientInfo={estimate.client_info} />
+        <EstimateDescription description={estimate.description} />
         <EstimateItemsSection
           items={estimate.items}
           isEditing={isEditing}
-          onUpdateItem={(index, item) => handleUpdateItem(estimate, index, item)}
-          onRemoveItem={(index) => handleRemoveItem(estimate, index)}
-          onAddItem={() => handleAddItem(estimate)}
+          onUpdateItem={handleUpdateItem}
+          onRemoveItem={handleRemoveItem}
+          onAddItem={handleAddItem}
         />
-
         <EstimateStatus 
           status={estimate.status} 
           createdAt={estimate.created_at} 
         />
-
+        <EstimateNotes
+          notes={estimate.notes}
+          isEditing={isEditing}
+          onUpdate={(notes) => handleUpdateDetails({ notes })}
+        />
         <EstimateAdditionalDetails
           terms={estimate.terms_and_conditions}
           paymentPolicy={estimate.payment_policy}
-          notes={estimate.notes}
           showTerms={estimate.show_terms}
           showPaymentPolicy={estimate.show_payment_policy}
           expirationDate={estimate.expiration_date}
           isEditing={isEditing}
           onUpdate={handleUpdateDetails}
         />
-
-        <div className="print:mt-16 print:border-t print:pt-8 print:text-sm">
-          <p className="mb-8">Signature: _______________________________</p>
-          <p>Date: _______________________________</p>
-        </div>
+        <EstimateSignature />
       </div>
     </div>
   );

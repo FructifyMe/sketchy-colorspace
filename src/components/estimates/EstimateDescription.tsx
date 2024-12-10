@@ -1,22 +1,12 @@
-import React from 'react';
-
 interface EstimateDescriptionProps {
-  description: string;
-  onChange: (description: string) => void;
+  description: string | null;
 }
 
-const EstimateDescription = ({ description, onChange }: EstimateDescriptionProps) => {
+const EstimateDescription = ({ description }: EstimateDescriptionProps) => {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Description
-      </label>
-      <textarea
-        value={description}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full min-h-[100px] p-2 border rounded-md"
-        placeholder="Description of work..."
-      />
+    <div className="print:mb-8">
+      <h2 className="text-2xl font-semibold mb-4 print:text-xl">Estimate Details</h2>
+      <p className="text-gray-700 print:text-sm">{description || 'No description provided'}</p>
     </div>
   );
 };
