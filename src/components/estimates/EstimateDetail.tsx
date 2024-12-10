@@ -20,7 +20,22 @@ const EstimateDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const { deleteMutation, updateMutation, handleUpdateItem, handleRemoveItem, handleAddItem } = useEstimateOperations(id!);
+  const { deleteMutation, updateMutation, handleUpdateItem: baseHandleUpdateItem, handleRemoveItem: baseHandleRemoveItem, handleAddItem: baseHandleAddItem } = useEstimateOperations(id!);
+
+  const handleUpdateItem = (index: number, item: EstimateItem) => {
+    if (!estimate) return;
+    baseHandleUpdateItem(estimate, index, item);
+  };
+
+  const handleRemoveItem = (index: number) => {
+    if (!estimate) return;
+    baseHandleRemoveItem(estimate, index);
+  };
+
+  const handleAddItem = () => {
+    if (!estimate) return;
+    baseHandleAddItem(estimate);
+  };
 
   const handleDownloadPDF = () => {
     console.log('Downloading PDF...');
