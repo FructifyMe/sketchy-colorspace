@@ -53,6 +53,7 @@ const EstimateDetail = () => {
     showPaymentPolicy?: boolean;
   }) => {
     if (!estimate) return;
+    console.log('Updating estimate details:', updates);
     updateMutation.mutate({
       ...estimate,
       terms_and_conditions: updates.terms ?? estimate.terms_and_conditions,
@@ -69,37 +70,44 @@ const EstimateDetail = () => {
       console.log('Fetching estimate:', id);
       const { data: estimateData, error: estimateError } = await supabase
         .from('estimates')
-        .select('*')
+        .select(`
+          *,
+          business_settings (
+            company_name,
+            company_logo,
+            company_header,
+            address,
+            city,
+            state,
+            zip_code,
+            phone,
+            email
+          )
+        `)
         .eq('id', id)
         .single();
 
       if (estimateError) throw estimateError;
       if (!estimateData) throw new Error('Estimate not found');
 
-      const { data: businessSettingsData, error: businessSettingsError } = await supabase
-        .from('business_settings')
-        .select('*')
-        .eq('user_id', estimateData.user_id)
-        .single();
-
-      if (businessSettingsError) throw businessSettingsError;
-      if (!businessSettingsData) throw new Error('Business settings not found');
+      console.log('Fetched estimate data:', estimateData);
 
       return {
         ...estimateData,
         client_info: parseClientInfo(estimateData.client_info),
         items: parseItems(estimateData.items),
         status: estimateData.status || 'draft',
+        notes: estimateData.notes,
         business_settings: {
-          company_name: businessSettingsData.company_name || null,
-          company_logo: businessSettingsData.company_logo || null,
-          company_header: businessSettingsData.company_header || null,
-          address: businessSettingsData.address || null,
-          city: businessSettingsData.city || null,
-          state: businessSettingsData.state || null,
-          zip_code: businessSettingsData.zip_code || null,
-          phone: businessSettingsData.phone || null,
-          email: businessSettingsData.email || null,
+          company_name: estimateData.business_settings?.company_name || null,
+          company_logo: estimateData.business_settings?.company_logo || null,
+          company_header: estimateData.business_settings?.company_header || null,
+          address: estimateData.business_settings?.address || null,
+          city: estimateData.business_settings?.city || null,
+          state: estimateData.business_settings?.state || null,
+          zip_code: estimateData.business_settings?.zip_code || null,
+          phone: estimateData.business_settings?.phone || null,
+          email: estimateData.business_settings?.email || null,
         },
       };
     }
