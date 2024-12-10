@@ -85,12 +85,24 @@ const EstimateDetail = () => {
           )
         `)
         .eq('id', id)
-        .maybeSingle();
+        .single();
 
       if (estimateError) throw estimateError;
       if (!estimateData) throw new Error('Estimate not found');
 
       console.log('Fetched estimate data:', estimateData);
+
+      const businessSettings = estimateData.business_settings || {
+        company_name: null,
+        company_logo: null,
+        company_header: null,
+        address: null,
+        city: null,
+        state: null,
+        zip_code: null,
+        phone: null,
+        email: null,
+      };
 
       return {
         ...estimateData,
@@ -98,18 +110,8 @@ const EstimateDetail = () => {
         items: parseItems(estimateData.items),
         status: estimateData.status || 'draft',
         notes: estimateData.notes,
-        business_settings: estimateData.business_settings || {
-          company_name: null,
-          company_logo: null,
-          company_header: null,
-          address: null,
-          city: null,
-          state: null,
-          zip_code: null,
-          phone: null,
-          email: null,
-        },
-      };
+        business_settings: businessSettings,
+      } as Estimate;
     }
   });
 
