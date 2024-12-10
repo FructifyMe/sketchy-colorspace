@@ -68,22 +68,11 @@ const EstimateDetail = () => {
     queryKey: ['estimate', id],
     queryFn: async () => {
       console.log('Fetching estimate:', id);
+      
+      // First, fetch the estimate
       const { data: estimateData, error: estimateError } = await supabase
         .from('estimates')
-        .select(`
-          *,
-          business_settings!inner (
-            company_name,
-            company_logo,
-            company_header,
-            address,
-            city,
-            state,
-            zip_code,
-            phone,
-            email
-          )
-        `)
+        .select('*')
         .eq('id', id)
         .single();
 
@@ -92,7 +81,18 @@ const EstimateDetail = () => {
 
       console.log('Fetched estimate data:', estimateData);
 
-      const businessSettings = estimateData.business_settings || {
+      // Then, fetch the business settings using the user_id from the estimate
+      const { data: businessSettingsData, error: businessSettingsError } = await supabase
+        .from('business_settings')
+        .select('company_name, company_logo, company_header, address, city, state, zip_code, phone, email')
+        .eq('user_id', estimateData.user_id)
+        .single();
+
+      if (businessSettingsError) {
+        console.error('Error fetching business settings:', businessSettingsError);
+      }
+
+      const businessSettings = businessSettingsData || {
         company_name: null,
         company_logo: null,
         company_header: null,
@@ -103,6 +103,8 @@ const EstimateDetail = () => {
         phone: null,
         email: null,
       };
+
+      console.log('Business settings:', businessSettings);
 
       return {
         ...estimateData,
