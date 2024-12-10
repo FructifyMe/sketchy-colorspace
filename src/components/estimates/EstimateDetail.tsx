@@ -12,7 +12,7 @@ import EstimateDescription from './EstimateDescription';
 import EstimateSignature from './EstimateSignature';
 import EstimateNotes from './EstimateNotes';
 import { useEstimateOperations } from '@/hooks/useEstimateOperations';
-import type { Estimate } from '@/types/estimateDetail';
+import type { Estimate, EstimateItem } from '@/types/estimateDetail';
 import { parseClientInfo, parseItems } from '@/types/estimateDetail';
 import html2pdf from 'html2pdf.js';
 
