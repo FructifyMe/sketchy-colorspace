@@ -31,21 +31,20 @@ const SigninPage = () => {
   }, [navigate]);
 
   const siteUrl = window.location.origin;
-  console.log("Current site URL:", siteUrl);
 
   return (
     <AuthLayout>
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Sign in to your account
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 text-transparent bg-clip-text">
+          Welcome back
         </h2>
         <p className="mt-2 text-sm text-gray-600">
-          Or{" "}
+          Don't have an account?{" "}
           <button
             onClick={() => navigate("/signup")}
-            className="font-medium text-primary hover:text-primary/80"
+            className="font-medium text-violet-600 hover:text-violet-500 transition-colors"
           >
-            create a new account
+            Sign up for free
           </button>
         </p>
       </div>
@@ -56,13 +55,50 @@ const SigninPage = () => {
           variables: {
             default: {
               colors: {
-                brand: '#059669',
-                brandAccent: '#10B981',
+                brand: 'rgb(124 58 237)',           // violet-600
+                brandAccent: 'rgb(99 102 241)',     // indigo-500
+                brandButtonText: 'white',
+                defaultButtonBackground: 'white',
+                defaultButtonBackgroundHover: 'rgb(243 244 246)',  // gray-100
+                defaultButtonBorder: 'rgb(229 231 235)',          // gray-200
+                defaultButtonText: 'rgb(17 24 39)',              // gray-900
+                dividerBackground: 'rgb(229 231 235)',           // gray-200
+                inputBackground: 'white',
+                inputBorder: 'rgb(229 231 235)',                // gray-200
+                inputBorderHover: 'rgb(156 163 175)',          // gray-400
+                inputBorderFocus: 'rgb(124 58 237)',           // violet-600
+                inputText: 'rgb(17 24 39)',                    // gray-900
+                inputPlaceholder: 'rgb(156 163 175)',          // gray-400
+              },
+              space: {
+                buttonPadding: '0.75rem 1rem',
+                inputPadding: '0.75rem 1rem',
+              },
+              borderWidths: {
+                buttonBorderWidth: '1px',
+                inputBorderWidth: '1px',
+              },
+              radii: {
+                borderRadiusButton: '0.5rem',
+                buttonBorderRadius: '0.5rem',
+                inputBorderRadius: '0.5rem',
+              },
+              fontSizes: {
+                baseButtonSize: '0.875rem',
+                baseInputSize: '0.875rem',
               },
             },
           },
+          className: {
+            button: 'font-medium transition-all duration-200',
+            container: 'space-y-4',
+            divider: 'my-6',
+            label: 'text-sm font-medium text-gray-700',
+            input: 'transition-all duration-200',
+            loader: 'border-violet-600',
+          }
         }}
-        theme="light"
+        theme="custom"
         providers={[]}
         redirectTo={`${siteUrl}/dashboard`}
         view="sign_in"

@@ -15,7 +15,6 @@ const SignupPage = () => {
     // Check if user is already logged in
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      console.log("Current session:", session);
       if (session) {
         navigate("/dashboard");
       }
@@ -25,52 +24,60 @@ const SignupPage = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
-      console.log("Auth state changed:", event, session);
-      
+      console.log('Auth state changed:', event, session);
       if (event === "SIGNED_IN") {
-        console.log("User signed in:", session?.user);
-        // Check if profile was created
         if (session?.user?.id) {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          console.log("Profile check after signup:", { profile, error });
-          
-          if (error) {
+          try {
+            // Create a profile for the new user
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert([
+                { 
+                  id: session.user.id,
+                  email: session.user.email,
+                  created_at: new Date().toISOString()
+                }
+              ]);
+            
+            if (profileError) {
+              console.error('Error creating profile:', profileError);
+              toast({
+                variant: "destructive",
+                title: "Error",
+                description: "There was an error creating your profile. Please try again.",
+              });
+              return;
+            }
+
+            navigate("/dashboard");
+          } catch (error) {
+            console.error('Error in signup process:', error);
             toast({
               variant: "destructive",
               title: "Error",
-              description: "There was an error creating your profile. Please try again.",
+              description: "An unexpected error occurred. Please try again.",
             });
-            return;
           }
         }
-        navigate("/dashboard");
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
-  const siteUrl = window.location.origin;
-  console.log("Current site URL:", siteUrl);
-
   return (
     <AuthLayout>
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 text-transparent bg-clip-text">
           Create your account
         </h2>
         <p className="mt-2 text-sm text-gray-600">
-          Or{" "}
+          Already have an account?{" "}
           <button
             onClick={() => navigate("/signin")}
-            className="font-medium text-primary hover:text-primary/80"
+            className="font-medium text-violet-600 hover:text-violet-500 transition-colors"
           >
-            sign in to your account
+            Sign in
           </button>
         </p>
       </div>
@@ -81,16 +88,55 @@ const SignupPage = () => {
           variables: {
             default: {
               colors: {
-                brand: '#059669',
-                brandAccent: '#10B981',
+                brand: 'rgb(124 58 237)',           // violet-600
+                brandAccent: 'rgb(99 102 241)',     // indigo-500
+                brandButtonText: 'white',
+                defaultButtonBackground: 'white',
+                defaultButtonBackgroundHover: 'rgb(243 244 246)',  // gray-100
+                defaultButtonBorder: 'rgb(229 231 235)',          // gray-200
+                defaultButtonText: 'rgb(17 24 39)',              // gray-900
+                dividerBackground: 'rgb(229 231 235)',           // gray-200
+                inputBackground: 'white',
+                inputBorder: 'rgb(229 231 235)',                // gray-200
+                inputBorderHover: 'rgb(156 163 175)',          // gray-400
+                inputBorderFocus: 'rgb(124 58 237)',           // violet-600
+                inputText: 'rgb(17 24 39)',                    // gray-900
+                inputPlaceholder: 'rgb(156 163 175)',          // gray-400
+              },
+              space: {
+                buttonPadding: '0.75rem 1rem',
+                inputPadding: '0.75rem 1rem',
+              },
+              borderWidths: {
+                buttonBorderWidth: '1px',
+                inputBorderWidth: '1px',
+              },
+              radii: {
+                borderRadiusButton: '0.5rem',
+                buttonBorderRadius: '0.5rem',
+                inputBorderRadius: '0.5rem',
+              },
+              fontSizes: {
+                baseButtonSize: '0.875rem',
+                baseInputSize: '0.875rem',
               },
             },
           },
+          className: {
+            button: 'font-medium transition-all duration-200',
+            container: 'space-y-4',
+            divider: 'my-6',
+            label: 'text-sm font-medium text-gray-700',
+            input: 'transition-all duration-200',
+            loader: 'border-violet-600',
+          }
         }}
-        theme="light"
+        theme="custom"
         providers={[]}
-        redirectTo={`${siteUrl}/dashboard`}
+        redirectTo={window.location.origin + "/dashboard"}
         view="sign_up"
+        magicLink={false}
+        showLinks={false}
         localization={{
           variables: {
             sign_up: {
