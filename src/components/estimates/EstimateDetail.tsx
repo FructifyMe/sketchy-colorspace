@@ -7,12 +7,10 @@ import EstimateClientInfo from './EstimateClientInfo';
 import EstimateItemsSection from './EstimateItemsSection';
 import EstimateHeader from './EstimateHeader';
 import EstimatePrintHeader from './EstimatePrintHeader';
-import EstimateStatus from './EstimateStatus';
 import EstimateAdditionalDetails from './EstimateAdditionalDetails';
 import { useEstimateOperations } from '@/hooks/useEstimateOperations';
 import type { Estimate } from '@/types/estimateDetail';
 import { parseClientInfo, parseItems } from '@/types/estimateDetail';
-import html2pdf from 'html2pdf.js';
 
 const EstimateDetail = () => {
   const { id } = useParams();
@@ -52,22 +50,6 @@ const EstimateDetail = () => {
       };
     },
   });
-
-  const handleDownloadPDF = () => {
-    console.log('Downloading PDF directly...');
-    const element = document.getElementById('estimate-content');
-    if (!element) return;
-    
-    const opt = {
-      margin: 1,
-      filename: 'estimate.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    
-    html2pdf().set(opt).from(element).save();
-  };
 
   const handleUpdateDetails = (updates: {
     terms?: string;
@@ -134,44 +116,43 @@ const EstimateDetail = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 print:p-6">
-      <EstimateHeader
-        isEditing={isEditing}
-        onToggleEdit={() => setIsEditing(!isEditing)}
-        onDelete={handleDelete}
-        onNavigateBack={() => navigate('/dashboard', { replace: true })}
-        estimateId={estimate.id}
-        onDownloadPDF={handleDownloadPDF}
-      />
+    <div className="container mx-auto py-6 px-4 print:p-4">
+      <div className="print:hidden">
+        <EstimateHeader
+          isEditing={isEditing}
+          onToggleEdit={() => setIsEditing(!isEditing)}
+          onDelete={handleDelete}
+          onNavigateBack={() => navigate('/dashboard', { replace: true })}
+          estimateId={estimate.id}
+        />
+      </div>
 
-      <div id="estimate-content" className="space-y-6 print:space-y-4">
+      <div id="estimate-content" className="space-y-8 print:space-y-4">
         <EstimatePrintHeader 
           businessSettings={estimate?.business_settings}
           estimateNumber={estimate?.id}
           estimateDate={estimate?.created_at}
         />
 
-        <div className="flex gap-8 print:gap-4">
-          <div className="w-1/3">
-            <EstimateClientInfo
-              clientInfo={estimate?.client_info}
-              isEditing={isEditing}
-              onUpdateClientInfo={handleUpdateClientInfo}
-            />
-          </div>
+        <div className="space-y-8 print:space-y-4">
+          <EstimateClientInfo
+            clientInfo={estimate?.client_info}
+            isEditing={isEditing}
+            onUpdateClientInfo={handleUpdateClientInfo}
+          />
 
-          <div className="flex-1 space-y-4 print:space-y-2">
-            <h2 className="text-xl font-semibold mb-2 text-left print:text-base print:mb-1">Estimate</h2>
+          <div className="space-y-8 print:space-y-4">
+            <h2 className="text-3xl font-semibold mb-3 text-left print:text-lg print:mb-2">Estimate</h2>
 
             <Card className="print:shadow-none print:border-none">
-              <CardHeader className="py-2 print:py-1">
-                <CardTitle className="text-center text-base print:text-sm">Description</CardTitle>
+              <CardHeader className="py-3 print:py-1">
+                <CardTitle className="text-left text-xl print:text-base">Description</CardTitle>
               </CardHeader>
-              <CardContent className="py-2 print:py-1">
-                <div className="text-center whitespace-pre-wrap text-sm print:text-xs">
+              <CardContent className="py-3 print:py-1">
+                <div className="text-left whitespace-pre-wrap text-lg print:text-xs">
                   {estimate.description?.split('\n').map((line, index) => (
                     line.trim() && (
-                      <div key={index} className="flex items-center justify-center">
+                      <div key={index} className="flex items-start">
                         <span className="mr-2">•</span>
                         <span>{line.trim()}</span>
                       </div>
@@ -190,11 +171,6 @@ const EstimateDetail = () => {
             />
           </div>
         </div>
-
-        <EstimateStatus 
-          status={estimate.status} 
-          createdAt={estimate.created_at} 
-        />
 
         <EstimateAdditionalDetails
           terms={estimate.terms_and_conditions}

@@ -28,15 +28,13 @@ export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: 
         estimateDate={estimate.created_at}
       />
 
-      <div className="flex gap-8 print:gap-4">
-        <div className="w-1/3">
-          <EstimateClientInfo 
-            clientInfo={estimate.client_info} 
-            estimateDate={estimate.created_at}
-          />
-        </div>
+      <div className="space-y-4 print:space-y-2">
+        <EstimateClientInfo 
+          clientInfo={estimate.client_info} 
+          estimateDate={estimate.created_at}
+        />
 
-        <div className="flex-1 space-y-4 print:space-y-2">
+        <div className="space-y-4 print:space-y-2">
           <h2 className="text-xl font-semibold mb-2 text-left print:text-sm print:mb-1">Estimate</h2>
 
           <Card className={cardClass}>
@@ -75,19 +73,19 @@ export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: 
             </Card>
           )}
         </div>
-      </div>
 
-      {showNotes && (
-        <EstimateAdditionalDetails
-          terms={estimate.terms_and_conditions}
-          paymentPolicy={estimate.payment_policy}
-          notes={estimate.notes}
-          showTerms={estimate.show_terms}
-          showPaymentPolicy={estimate.show_payment_policy}
-          isEditing={false}
-          onUpdate={() => {}}
-        />
-      )}
+        {showNotes && (
+          <EstimateAdditionalDetails
+            terms={estimate.terms_and_conditions}
+            paymentPolicy={estimate.payment_policy}
+            notes={estimate.notes}
+            showTerms={estimate.show_terms}
+            showPaymentPolicy={estimate.show_payment_policy}
+            isEditing={false}
+            onUpdate={() => {}}
+          />
+        )}
+      </div>
     </div>
   );
 };

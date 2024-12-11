@@ -14,17 +14,17 @@ const EstimatePrintHeader = ({
   estimateDate 
 }: EstimatePrintHeaderProps) => {
   return (
-    <div className="hidden print:block mb-8 border-b border-gray-200 pb-6">
-      <div className="flex justify-between">
+    <div className="hidden print:block mb-8 border-b border-gray-200 pb-6 print:mb-4">
+      <div className="flex justify-between print:mb-4">
         {/* Company Information */}
-        <div className="w-1/2">
-          <h1 className="text-base font-bold mb-1">
+        <div className="text-left">
+          <h1 className="text-xl font-bold mb-2 print:text-base print:mb-1">
             {businessSettings?.company_name || 'Company Name'}
           </h1>
           {businessSettings?.company_header && (
-            <p className="text-sm text-gray-600 mb-2">{businessSettings.company_header}</p>
+            <p className="text-lg text-gray-600 mb-2 print:text-sm print:mb-1">{businessSettings.company_header}</p>
           )}
-          <div className="text-xs space-y-0.5 text-gray-600">
+          <div className="text-base space-y-1 text-gray-600 print:text-xs print:space-y-0.5">
             {businessSettings?.address && <p>{businessSettings.address}</p>}
             {(businessSettings?.city || businessSettings?.state || businessSettings?.zip_code) && (
               <p>
@@ -38,18 +38,16 @@ const EstimatePrintHeader = ({
           </div>
         </div>
 
-        {/* Logo and Estimate Details */}
-        <div className="w-1/2 text-right">
+        {/* Logo and Date Only */}
+        <div className="text-right">
           {businessSettings?.company_logo && (
             <img 
               src={businessSettings.company_logo} 
               alt="Company Logo" 
-              className="max-h-14 mb-4 print:grayscale ml-auto"
+              className="max-h-32 mb-4 print:grayscale ml-auto print:max-h-20" 
             />
           )}
-          <div className="text-xs">
-            <p className="font-semibold mb-1">ESTIMATE</p>
-            <p className="text-gray-600">Number: {estimateNumber}</p>
+          <div className="text-base print:text-xs">
             <p className="text-gray-600">Date: {format(new Date(estimateDate), 'MM/dd/yyyy')}</p>
           </div>
         </div>

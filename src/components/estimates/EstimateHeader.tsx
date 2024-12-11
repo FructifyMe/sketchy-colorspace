@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FileDown, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
 import EmailEstimateDialog from "./EmailEstimateDialog";
 import DeleteEstimateDialog from "./DeleteEstimateDialog";
 
@@ -39,14 +39,6 @@ const EstimateHeader = ({
         >
           <Printer className="h-4 w-4 mr-2" />
           Print
-        </Button>
-
-        <Button
-          variant="outline"
-          onClick={onDownloadPDF}
-        >
-          <FileDown className="h-4 w-4 mr-2" />
-          Save PDF
         </Button>
 
         <EmailEstimateDialog estimateId={estimateId} />
