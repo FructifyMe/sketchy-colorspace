@@ -116,7 +116,7 @@ const EstimateDetail = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 print:p-4">
+    <div className="container mx-auto py-6 px-4 print:p-2">
       <div className="print:hidden">
         <EstimateHeader
           isEditing={isEditing}
@@ -127,21 +127,21 @@ const EstimateDetail = () => {
         />
       </div>
 
-      <div id="estimate-content" className="space-y-8 print:space-y-4">
+      <div id="estimate-content" className="space-y-8 print:space-y-2">
         <EstimatePrintHeader 
           businessSettings={estimate?.business_settings}
           estimateNumber={estimate?.id}
           estimateDate={estimate?.created_at}
         />
 
-        <div className="space-y-8 print:space-y-4">
+        <div className="space-y-8 print:space-y-2">
           <EstimateClientInfo
             clientInfo={estimate?.client_info}
             isEditing={isEditing}
             onUpdateClientInfo={handleUpdateClientInfo}
           />
 
-          <div className="space-y-8 print:space-y-4">
+          <div className="space-y-8 print:space-y-2">
             <h2 className="text-3xl font-semibold mb-3 text-left print:text-lg print:mb-2">Estimate</h2>
 
             <Card className="print:shadow-none print:border-none">

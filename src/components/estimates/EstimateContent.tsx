@@ -14,11 +14,11 @@ interface EstimateContentProps {
 export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: EstimateContentProps) => {
   const containerClass = mode === 'email' 
     ? "font-sans max-w-[600px] mx-auto space-y-4" 
-    : "space-y-2 print:space-y-1 [&_*]:print:!text-[0.8em]";
+    : "space-y-6 print:space-y-4 [&_*]:print:text-sm";
 
   const cardClass = mode === 'email'
     ? "border border-gray-200 rounded-lg overflow-hidden"
-    : "print:shadow-none print:border-none";
+    : "print:shadow-none print:border-none print:p-0";
 
   return (
     <div className={containerClass}>
@@ -28,29 +28,33 @@ export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: 
         estimateDate={estimate.created_at}
       />
 
-      <div className="space-y-4 print:space-y-2">
+      <div className="space-y-6 print:space-y-4">
         <EstimateClientInfo 
           clientInfo={estimate.client_info} 
           estimateDate={estimate.created_at}
         />
 
-        <div className="space-y-4 print:space-y-2">
-          <h2 className="text-xl font-semibold mb-2 text-left print:text-sm print:mb-1">Estimate</h2>
+        <div className="space-y-6 print:space-y-4">
+          <h2 className="text-2xl font-semibold mb-4 print:text-lg print:mb-2">Estimate</h2>
 
           <Card className={cardClass}>
             <CardHeader className="py-2 print:py-1">
-              <CardTitle className="text-left text-base print:text-xs">Description</CardTitle>
+              <CardTitle className="text-left text-lg print:text-base">Description</CardTitle>
             </CardHeader>
             <CardContent className="py-2 print:py-1">
-              <div className="text-left whitespace-pre-wrap text-sm print:text-xs">
-                {estimate.description?.split('\n').map((line, index) => (
-                  line.trim() && (
-                    <div key={index} className="flex items-start">
-                      <span className="mr-2">•</span>
-                      <span>{line.trim()}</span>
-                    </div>
-                  )
-                ))}
+              <div className="mb-6 print:mb-4">
+                <h3 className="text-xl font-medium mb-2 print:text-base print:mb-1">Description</h3>
+                <p className="mb-2 print:text-sm">Work to be performed:</p>
+                <div className="pl-6 space-y-1 print:text-sm">
+                  {estimate.description?.split('\n').map((line, index) => (
+                    line.trim() && (
+                      <div key={index} className="flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>{line.trim()}</span>
+                      </div>
+                    )
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -62,11 +66,11 @@ export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: 
 
           {showNotes && estimate.notes && (
             <Card className={`${cardClass} print:mt-2`}>
-              <CardHeader className="py-1">
-                <CardTitle className="text-xs font-semibold">Notes</CardTitle>
+              <CardHeader className="py-1 print:py-0.5">
+                <CardTitle className="text-xs font-semibold print:text-sm">Notes</CardTitle>
               </CardHeader>
-              <CardContent className="py-1">
-                <div className="whitespace-pre-wrap text-xs">
+              <CardContent className="py-1 print:py-0.5">
+                <div className="whitespace-pre-wrap print:text-sm">
                   {estimate.notes}
                 </div>
               </CardContent>
@@ -170,8 +174,12 @@ export const getEstimateHtml = (estimate: Estimate): string => {
               <h3>Description</h3>
             </div>
             <div class="card-content">
-              <div class="text-left whitespace-pre-wrap">
-                ${estimate.description || 'No description provided'}
+              <div class="mb-6">
+                <h3 class="text-xl font-medium mb-2">Description</h3>
+                <p class="mb-2">Work to be performed:</p>
+                <div class="pl-6 space-y-1">
+                  ${estimate.description || 'No description provided'}
+                </div>
               </div>
             </div>
           </div>
