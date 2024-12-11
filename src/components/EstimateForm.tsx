@@ -26,16 +26,18 @@ const EstimateForm = () => {
   const handleTranscriptionComplete = (data: any) => {
     console.log("Received transcription data:", data);
     
+    // Map items, ensuring all required fields are present
     const mappedItems = Array.isArray(data.items) ? data.items.map(item => ({
-      name: item.description || item.name || '',
+      name: item.description || '',
       quantity: item.quantity || 1,
-      price: item.unitPrice || item.price || 0
+      price: item.price || 0
     })) : [];
 
     console.log("Mapped items:", mappedItems);
     
+    // Update form data with the processed information
     setFormData(prev => ({
-      description: data.description || '',
+      description: data.description || '',  // This is now the processed description from GPT-4
       items: mappedItems,
       notes: data.notes || '',
       clientInfo: {
@@ -49,7 +51,7 @@ const EstimateForm = () => {
 
     toast({
       title: "Transcription complete",
-      description: "Your estimate has been populated with the transcribed data",
+      description: "Your estimate has been populated with the processed data",
     });
   };
 

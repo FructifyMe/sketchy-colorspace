@@ -111,7 +111,7 @@ serve(async (req) => {
             - "Need to complete work before 3pm"
             - "Must wear shoe covers"
             - "Call before arriving"
-            These are crucial details that need to be captured separately from the work description.`
+            These are crucial details that need to be captured separately from the work description.` // eslint-disable-line max-len
           },
           {
             role: "user",
@@ -142,16 +142,13 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({
-        transcriptionText: transcribedText,
-        ...structuredData
-      }),
+      JSON.stringify(structuredData),  // Only return the processed data
       { 
         headers: { 
           ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-      },
+          'Content-Type': 'application/json'
+        }
+      }
     );
 
   } catch (error) {
