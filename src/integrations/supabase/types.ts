@@ -61,11 +61,13 @@ export type Database = {
         Row: {
           client_info: Json | null
           created_at: string
+          deleted: boolean
           description: string | null
           expiration_date: string | null
           id: string
           items: Json | null
           notes: string | null
+          notes_special_instructions: string | null
           payment_policy: string | null
           show_payment_policy: boolean | null
           show_terms: boolean | null
@@ -77,11 +79,13 @@ export type Database = {
         Insert: {
           client_info?: Json | null
           created_at?: string
+          deleted?: boolean
           description?: string | null
           expiration_date?: string | null
           id?: string
           items?: Json | null
           notes?: string | null
+          notes_special_instructions?: string | null
           payment_policy?: string | null
           show_payment_policy?: boolean | null
           show_terms?: boolean | null
@@ -93,11 +97,13 @@ export type Database = {
         Update: {
           client_info?: Json | null
           created_at?: string
+          deleted?: boolean
           description?: string | null
           expiration_date?: string | null
           id?: string
           items?: Json | null
           notes?: string | null
+          notes_special_instructions?: string | null
           payment_policy?: string | null
           show_payment_policy?: boolean | null
           show_terms?: boolean | null
