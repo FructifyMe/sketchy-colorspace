@@ -34,15 +34,8 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({ onTranscriptionComplete }
         const result = await processAudioData(audioChunksRef.current);
         console.log("Processed audio result:", result);
         
-        const transcriptionData = {
-          description: result.transcriptionText || '',
-          items: result.items || [],
-          clientInfo: result.clientInfo || {},
-          notes: result.notes || ''
-        };
-
-        console.log("Sending transcription data:", transcriptionData);
-        onTranscriptionComplete(transcriptionData);
+        // Pass the data directly as received from GPT-4
+        onTranscriptionComplete(result);
         
         toast({
           title: "Success",
