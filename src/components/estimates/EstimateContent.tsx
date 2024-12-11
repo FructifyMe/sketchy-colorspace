@@ -14,7 +14,7 @@ interface EstimateContentProps {
 export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: EstimateContentProps) => {
   const containerClass = mode === 'email' 
     ? "font-sans max-w-[600px] mx-auto space-y-4" 
-    : "space-y-2 print:space-y-1 print:text-sm";
+    : "space-y-2 print:space-y-1 [&_*]:print:!text-[0.8em]";
 
   const cardClass = mode === 'email'
     ? "border border-gray-200 rounded-lg overflow-hidden"
@@ -37,11 +37,11 @@ export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: 
         </div>
 
         <div className="flex-1 space-y-4 print:space-y-2">
-          <h2 className="text-xl font-semibold mb-2 text-left print:text-base print:mb-1">Estimate</h2>
+          <h2 className="text-xl font-semibold mb-2 text-left print:text-sm print:mb-1">Estimate</h2>
 
           <Card className={cardClass}>
             <CardHeader className="py-2 print:py-1">
-              <CardTitle className="text-left text-base print:text-sm">Description</CardTitle>
+              <CardTitle className="text-left text-base print:text-xs">Description</CardTitle>
             </CardHeader>
             <CardContent className="py-2 print:py-1">
               <div className="text-left whitespace-pre-wrap text-sm print:text-xs">
@@ -65,10 +65,10 @@ export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: 
           {showNotes && estimate.notes && (
             <Card className={`${cardClass} print:mt-2`}>
               <CardHeader className="py-1">
-                <CardTitle className="text-sm font-semibold">Notes</CardTitle>
+                <CardTitle className="text-xs font-semibold">Notes</CardTitle>
               </CardHeader>
               <CardContent className="py-1">
-                <div className="whitespace-pre-wrap text-sm">
+                <div className="whitespace-pre-wrap text-xs">
                   {estimate.notes}
                 </div>
               </CardContent>

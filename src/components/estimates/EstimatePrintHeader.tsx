@@ -1,10 +1,11 @@
 import { BusinessSettings } from "@/types/estimateDetail";
 import { formatDate } from "@/lib/utils";
+import { format } from 'date-fns';
 
 interface EstimatePrintHeaderProps {
-  businessSettings: BusinessSettings;
-  estimateNumber?: string;
-  estimateDate?: string;
+  businessSettings?: BusinessSettings;
+  estimateNumber: string;
+  estimateDate: string;
 }
 
 const EstimatePrintHeader = ({ 
@@ -14,35 +15,42 @@ const EstimatePrintHeader = ({
 }: EstimatePrintHeaderProps) => {
   return (
     <div className="hidden print:block mb-8 border-b border-gray-200 pb-6">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between">
         {/* Company Information */}
-        <div className="flex-1">
-          <h1 className="text-xl font-bold mb-2">{businessSettings.company_name || 'Company Name'}</h1>
-          <div className="text-sm space-y-1 text-gray-600">
-            <p>{businessSettings.address}</p>
-            <p>{businessSettings.city}, {businessSettings.state} {businessSettings.zip_code}</p>
-            <p>{businessSettings.phone}</p>
-            <p>{businessSettings.email}</p>
+        <div className="w-1/2">
+          <h1 className="text-base font-bold mb-1">
+            {businessSettings?.company_name || 'Company Name'}
+          </h1>
+          {businessSettings?.company_header && (
+            <p className="text-sm text-gray-600 mb-2">{businessSettings.company_header}</p>
+          )}
+          <div className="text-xs space-y-0.5 text-gray-600">
+            {businessSettings?.address && <p>{businessSettings.address}</p>}
+            {(businessSettings?.city || businessSettings?.state || businessSettings?.zip_code) && (
+              <p>
+                {businessSettings.city}
+                {businessSettings.city && businessSettings.state && ', '}
+                {businessSettings.state} {businessSettings.zip_code}
+              </p>
+            )}
+            {businessSettings?.phone && <p>{businessSettings.phone}</p>}
+            {businessSettings?.email && <p>{businessSettings.email}</p>}
           </div>
         </div>
 
         {/* Logo and Estimate Details */}
-        <div className="flex-1 flex flex-col items-end">
-          {businessSettings.company_logo && (
+        <div className="w-1/2 text-right">
+          {businessSettings?.company_logo && (
             <img 
               src={businessSettings.company_logo} 
               alt="Company Logo" 
-              className="max-h-16 mb-4 print:grayscale"
+              className="max-h-14 mb-4 print:grayscale ml-auto"
             />
           )}
-          <div className="text-sm text-right">
+          <div className="text-xs">
             <p className="font-semibold mb-1">ESTIMATE</p>
-            {estimateNumber && (
-              <p className="text-gray-600">Number: {estimateNumber}</p>
-            )}
-            {estimateDate && (
-              <p className="text-gray-600">Date: {formatDate(estimateDate)}</p>
-            )}
+            <p className="text-gray-600">Number: {estimateNumber}</p>
+            <p className="text-gray-600">Date: {format(new Date(estimateDate), 'MM/dd/yyyy')}</p>
           </div>
         </div>
       </div>

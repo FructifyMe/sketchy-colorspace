@@ -20,6 +20,39 @@ const EstimateDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { deleteMutation, updateMutation, handleUpdateItem, handleRemoveItem, handleAddItem } = useEstimateOperations(id!);
 
+  const { data: estimate, isLoading, error } = useQuery({
+    queryKey: ['estimate', id],
+    queryFn: async () => {
+      console.log('Fetching estimate:', id);
+      const { data: estimateData, error: estimateError } = await supabase
+        .from('estimates')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (estimateError) throw estimateError;
+      if (!estimateData) throw new Error('Estimate not found');
+
+      // Fetch business settings
+      const { data: businessSettings, error: businessError } = await supabase
+        .from('business_settings')
+        .select('*')
+        .eq('user_id', estimateData.user_id)
+        .single();
+
+      if (businessError) {
+        console.warn('Could not fetch business settings:', businessError);
+      }
+
+      return {
+        ...estimateData,
+        business_settings: businessSettings || {},
+        client_info: estimateData.client_info || {},
+        items: estimateData.items || []
+      };
+    },
+  });
+
   const handleDownloadPDF = () => {
     console.log('Downloading PDF directly...');
     const element = document.getElementById('estimate-content');
@@ -55,6 +88,15 @@ const EstimateDetail = () => {
     });
   };
 
+  const handleUpdateClientInfo = (updates: ClientInfo) => {
+    if (!estimate) return;
+    
+    updateMutation.mutate({
+      ...estimate,
+      client_info: updates
+    });
+  };
+
   const handleDelete = async () => {
     console.log('EstimateDetail: handleDelete called');
     try {
@@ -66,71 +108,6 @@ const EstimateDetail = () => {
       console.error('Error deleting estimate:', error);
     }
   };
-
-  const { data: estimate, isLoading, error } = useQuery({
-    queryKey: ['estimate', id],
-    queryFn: async () => {
-      console.log('Fetching estimate:', id);
-      
-      // First, fetch the estimate
-      const { data: estimateData, error: estimateError } = await supabase
-        .from('estimates')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (estimateError) {
-        console.error("Error fetching estimate:", estimateError);
-        throw estimateError;
-      }
-
-      if (!estimateData) {
-        throw new Error('Estimate not found');
-      }
-
-      console.log('Raw estimate data:', estimateData);
-
-      // Then, fetch the business settings
-      const { data: businessSettingsData, error: businessSettingsError } = await supabase
-        .from('business_settings')
-        .select('*')
-        .eq('user_id', estimateData.user_id)
-        .single();
-
-      if (businessSettingsError) {
-        console.error("Error fetching business settings:", businessSettingsError);
-        throw businessSettingsError;
-      }
-
-      if (!businessSettingsData) {
-        console.error('No business settings found for user');
-        throw new Error('Business settings not found');
-      }
-
-      console.log('Business settings data:', businessSettingsData);
-
-      const parsedData: Estimate = {
-        ...estimateData,
-        client_info: parseClientInfo(estimateData.client_info),
-        items: parseItems(estimateData.items),
-        status: estimateData.status || 'draft',
-        business_settings: {
-          company_name: businessSettingsData.company_name || null,
-          company_logo: businessSettingsData.company_logo || null,
-          company_header: businessSettingsData.company_header || null,
-          address: businessSettingsData.address || null,
-          city: businessSettingsData.city || null,
-          state: businessSettingsData.state || null,
-          zip_code: businessSettingsData.zip_code || null,
-          phone: businessSettingsData.phone || null,
-          email: businessSettingsData.email || null,
-        },
-      };
-
-      console.log('Parsed estimate data:', parsedData);
-      return parsedData;
-    }
-  });
 
   if (isLoading) {
     return <div className="container mx-auto p-6">Loading...</div>;
@@ -157,7 +134,7 @@ const EstimateDetail = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto py-6 px-4 print:p-6">
       <EstimateHeader
         isEditing={isEditing}
         onToggleEdit={() => setIsEditing(!isEditing)}
@@ -168,28 +145,51 @@ const EstimateDetail = () => {
       />
 
       <div id="estimate-content" className="space-y-6 print:space-y-4">
-        <EstimatePrintHeader businessSettings={estimate.business_settings} />
-
-        <EstimateClientInfo clientInfo={estimate.client_info} />
-
-        <h2 className="text-2xl font-semibold mb-4">Estimate</h2>
-
-        <Card className="print:shadow-none print:border-none">
-          <CardHeader>
-            <CardTitle>Description</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{estimate.description || 'No description provided'}</p>
-          </CardContent>
-        </Card>
-
-        <EstimateItemsSection
-          items={estimate.items}
-          isEditing={isEditing}
-          onUpdateItem={(index, item) => handleUpdateItem(estimate, index, item)}
-          onRemoveItem={(index) => handleRemoveItem(estimate, index)}
-          onAddItem={() => handleAddItem(estimate)}
+        <EstimatePrintHeader 
+          businessSettings={estimate?.business_settings}
+          estimateNumber={estimate?.id}
+          estimateDate={estimate?.created_at}
         />
+
+        <div className="flex gap-8 print:gap-4">
+          <div className="w-1/3">
+            <EstimateClientInfo
+              clientInfo={estimate?.client_info}
+              isEditing={isEditing}
+              onUpdateClientInfo={handleUpdateClientInfo}
+            />
+          </div>
+
+          <div className="flex-1 space-y-4 print:space-y-2">
+            <h2 className="text-xl font-semibold mb-2 text-left print:text-base print:mb-1">Estimate</h2>
+
+            <Card className="print:shadow-none print:border-none">
+              <CardHeader className="py-2 print:py-1">
+                <CardTitle className="text-center text-base print:text-sm">Description</CardTitle>
+              </CardHeader>
+              <CardContent className="py-2 print:py-1">
+                <div className="text-center whitespace-pre-wrap text-sm print:text-xs">
+                  {estimate.description?.split('\n').map((line, index) => (
+                    line.trim() && (
+                      <div key={index} className="flex items-center justify-center">
+                        <span className="mr-2">•</span>
+                        <span>{line.trim()}</span>
+                      </div>
+                    )
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <EstimateItemsSection
+              items={estimate.items}
+              isEditing={isEditing}
+              onUpdateItem={(index, item) => handleUpdateItem(estimate, index, item)}
+              onRemoveItem={(index) => handleRemoveItem(estimate, index)}
+              onAddItem={() => handleAddItem(estimate)}
+            />
+          </div>
+        </div>
 
         <EstimateStatus 
           status={estimate.status} 
