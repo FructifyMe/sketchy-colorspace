@@ -37,37 +37,37 @@ const EstimateItemsSection = ({
   return (
     <Card className="print:shadow-none print:border-none">
       <CardHeader className="flex flex-row items-center justify-between print:pb-2">
-        <CardTitle>Items</CardTitle>
+        <CardTitle className="text-sm font-semibold">Items</CardTitle>
         {isEditing && (
           <Button onClick={onAddItem} variant="outline" className="print:hidden">
             Add Item
           </Button>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="py-2">
         {/* Print-optimized table */}
         <div className="hidden print:block">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="py-2 text-left font-semibold">Description</th>
-                <th className="py-2 text-right font-semibold w-24">Quantity</th>
-                <th className="py-2 text-right font-semibold w-32">Unit Price</th>
-                <th className="py-2 text-right font-semibold w-32">Total</th>
+                <th className="py-2 text-left text-sm font-semibold w-1/2">Description</th>
+                <th className="py-2 text-left text-sm font-semibold w-1/6">Quantity</th>
+                <th className="py-2 text-left text-sm font-semibold w-1/6">Unit Price</th>
+                <th className="py-2 text-left text-sm font-semibold w-1/6">Total</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item, index) => (
                 <tr key={index} className="border-b border-gray-100">
-                  <td className="py-2">{item.name}</td>
-                  <td className="py-2 text-right">{item.quantity}</td>
-                  <td className="py-2 text-right">{formatCurrency(item.price)}</td>
-                  <td className="py-2 text-right">{formatCurrency(item.quantity * item.price)}</td>
+                  <td className="py-2 text-left text-sm">{item.name}</td>
+                  <td className="py-2 text-left text-sm">{item.quantity}</td>
+                  <td className="py-2 text-left text-sm">{formatCurrency(item.price)}</td>
+                  <td className="py-2 text-left text-sm">{formatCurrency(item.quantity * item.price)}</td>
                 </tr>
               ))}
-              <tr className="font-semibold">
-                <td colSpan={3} className="py-3 text-right">Total:</td>
-                <td className="py-3 text-right">{formatCurrency(calculateTotal())}</td>
+              <tr className="text-sm font-semibold">
+                <td colSpan={3} className="py-3 text-left">Total:</td>
+                <td className="py-3 text-left">{formatCurrency(calculateTotal())}</td>
               </tr>
             </tbody>
           </table>
@@ -86,13 +86,13 @@ const EstimateItemsSection = ({
                 />
               ) : (
                 <div className="flex justify-between items-center p-4 border rounded-lg">
-                  <div>
+                  <div className="text-left">
                     <p className="font-medium">{item.name}</p>
                     <p className="text-sm text-gray-600">
                       Quantity: {item.quantity} × {formatCurrency(item.price)}
                     </p>
                   </div>
-                  <p className="font-medium">
+                  <p className="font-medium text-left">
                     {formatCurrency(item.quantity * item.price)}
                   </p>
                 </div>
