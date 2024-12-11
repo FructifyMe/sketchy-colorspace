@@ -13,6 +13,7 @@ import EstimateForm from "./components/EstimateForm";
 import EstimateDetail from "./components/estimates/EstimateDetail";
 import './App.css';
 import './styles/print.css';
+import './styles/animations.css';
 
 const queryClient = new QueryClient();
 
