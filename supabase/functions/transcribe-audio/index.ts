@@ -50,7 +50,7 @@ serve(async (req) => {
     console.log("Transcription result:", transcribedText);
 
     // Step 2: Process with GPT-4 using enhanced prompt for better note extraction
-    console.log("Step 2: Processing with GPT-4o-mini...");
+    console.log("Step 2: Processing with GPT-4...");
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -58,7 +58,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4",
         messages: [
           {
             role: "system",
@@ -130,7 +130,7 @@ serve(async (req) => {
     }
 
     const extractionResult = await extractionResponse.json();
-    console.log("GPT-4o-mini response:", extractionResult);
+    console.log("GPT-4 response:", extractionResult);
 
     let structuredData;
     try {
@@ -141,8 +141,13 @@ serve(async (req) => {
       throw new Error("Failed to parse structured data from GPT response");
     }
 
+    // Validate the structured data has required fields
+    if (!structuredData || !structuredData.description || !Array.isArray(structuredData.items)) {
+      throw new Error("Invalid data structure returned from GPT");
+    }
+
     return new Response(
-      JSON.stringify(structuredData),  // Only return the processed data
+      JSON.stringify(structuredData),
       { 
         headers: { 
           ...corsHeaders,
