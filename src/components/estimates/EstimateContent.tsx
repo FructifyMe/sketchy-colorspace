@@ -14,7 +14,7 @@ interface EstimateContentProps {
 export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: EstimateContentProps) => {
   const containerClass = mode === 'email' 
     ? "font-sans max-w-[600px] mx-auto space-y-4" 
-    : "space-y-4 print:space-y-2";
+    : "space-y-2 print:space-y-1 print:text-sm";
 
   const cardClass = mode === 'email'
     ? "border border-gray-200 rounded-lg overflow-hidden"
@@ -28,7 +28,7 @@ export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: 
         estimateDate={estimate.created_at}
       />
 
-      <div className="flex gap-8">
+      <div className="flex gap-8 print:gap-4">
         <div className="w-1/3">
           <EstimateClientInfo 
             clientInfo={estimate.client_info} 
@@ -36,15 +36,15 @@ export const EstimateContent = ({ estimate, showNotes = true, mode = 'print' }: 
           />
         </div>
 
-        <div className="flex-1 space-y-4">
-          <h2 className="text-xl font-semibold mb-2 text-left">Estimate</h2>
+        <div className="flex-1 space-y-4 print:space-y-2">
+          <h2 className="text-xl font-semibold mb-2 text-left print:text-base print:mb-1">Estimate</h2>
 
           <Card className={cardClass}>
-            <CardHeader className="py-2">
-              <CardTitle className="text-left text-base">Description</CardTitle>
+            <CardHeader className="py-2 print:py-1">
+              <CardTitle className="text-left text-base print:text-sm">Description</CardTitle>
             </CardHeader>
-            <CardContent className="py-2">
-              <div className="text-left whitespace-pre-wrap text-sm">
+            <CardContent className="py-2 print:py-1">
+              <div className="text-left whitespace-pre-wrap text-sm print:text-xs">
                 {estimate.description?.split('\n').map((line, index) => (
                   line.trim() && (
                     <div key={index} className="flex items-start">
