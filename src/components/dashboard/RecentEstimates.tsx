@@ -14,6 +14,13 @@ interface RecentEstimatesProps {
 const RecentEstimates = ({ estimates, isLoading }: RecentEstimatesProps) => {
   const navigate = useNavigate();
 
+  const formatDescription = (description: string | null) => {
+    if (!description) return 'No description';
+    return description.split('\n').map((line, index) => (
+      <div key={index} className="text-left">• {line.trim()}</div>
+    ));
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -27,9 +34,8 @@ const RecentEstimates = ({ estimates, isLoading }: RecentEstimatesProps) => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Description</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Created</TableHead>
               </TableRow>
             </TableHeader>
@@ -40,13 +46,14 @@ const RecentEstimates = ({ estimates, isLoading }: RecentEstimatesProps) => {
                   className="cursor-pointer hover:bg-muted"
                   onClick={() => navigate(`/estimates/${estimate.id}`)}
                 >
-                  <TableCell>{estimate.description || 'No description'}</TableCell>
                   <TableCell>
                     {estimate.client_info ? 
                       (estimate.client_info as any).name || 'No client name' 
                       : 'No client info'}
                   </TableCell>
-                  <TableCell className="capitalize">{estimate.status}</TableCell>
+                  <TableCell className="text-left whitespace-normal">
+                    {formatDescription(estimate.description)}
+                  </TableCell>
                   <TableCell>
                     {formatDistanceToNow(new Date(estimate.created_at), { addSuffix: true })}
                   </TableCell>
