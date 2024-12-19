@@ -14,7 +14,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     detectSessionInUrl: true,
     flowType: "pkce",
-    redirectTo: "https://fructifyme.github.io/sketchy-colorspace/#/dashboard"
+    redirectTo: "http://localhost:3001/dashboard"
   },
   functions: {
     baseUrl: SUPABASE_URL
