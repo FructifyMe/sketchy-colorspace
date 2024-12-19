@@ -25,8 +25,15 @@ const SignupPage = () => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       console.log('Auth state changed:', event, session);
-      if (event === "SIGNED_IN") {
-        if (session?.user?.id) {
+      if (event === "SIGNED_IN" && session?.user?.id) {
+        // Check if profile already exists
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!existingProfile) {
           try {
             // Create a profile for the new user
             const { error: profileError } = await supabase
@@ -37,7 +44,9 @@ const SignupPage = () => {
                   email: session.user.email,
                   created_at: new Date().toISOString()
                 }
-              ]);
+              ])
+              .select()
+              .single();
             
             if (profileError) {
               console.error('Error creating profile:', profileError);
@@ -46,10 +55,10 @@ const SignupPage = () => {
                 title: "Error",
                 description: "There was an error creating your profile. Please try again.",
               });
+              // Sign out the user if profile creation fails
+              await supabase.auth.signOut();
               return;
             }
-
-            navigate("/dashboard");
           } catch (error) {
             console.error('Error in signup process:', error);
             toast({
@@ -57,8 +66,13 @@ const SignupPage = () => {
               title: "Error",
               description: "An unexpected error occurred. Please try again.",
             });
+            // Sign out the user if there's an error
+            await supabase.auth.signOut();
+            return;
           }
         }
+
+        navigate("/dashboard");
       }
     });
 
@@ -99,56 +113,11 @@ const SignupPage = () => {
                 inputBackground: 'white',
                 inputBorder: 'rgb(229 231 235)',                // gray-200
                 inputBorderHover: 'rgb(156 163 175)',          // gray-400
-                inputBorderFocus: 'rgb(124 58 237)',           // violet-600
-                inputText: 'rgb(17 24 39)',                    // gray-900
-                inputPlaceholder: 'rgb(156 163 175)',          // gray-400
-              },
-              space: {
-                buttonPadding: '0.75rem 1rem',
-                inputPadding: '0.75rem 1rem',
-              },
-              borderWidths: {
-                buttonBorderWidth: '1px',
-                inputBorderWidth: '1px',
-              },
-              radii: {
-                borderRadiusButton: '0.5rem',
-                buttonBorderRadius: '0.5rem',
-                inputBorderRadius: '0.5rem',
-              },
-              fontSizes: {
-                baseButtonSize: '0.875rem',
-                baseInputSize: '0.875rem',
-              },
-            },
-          },
-          className: {
-            button: 'font-medium transition-all duration-200',
-            container: 'space-y-4',
-            divider: 'my-6',
-            label: 'text-sm font-medium text-gray-700',
-            input: 'transition-all duration-200',
-            loader: 'border-violet-600',
+              }
+            }
           }
         }}
-        theme="custom"
         providers={[]}
-        redirectTo={window.location.origin + "/dashboard"}
-        view="sign_up"
-        magicLink={false}
-        showLinks={false}
-        localization={{
-          variables: {
-            sign_up: {
-              email_label: "Email address",
-              password_label: "Create a password",
-              button_label: "Create account",
-              loading_button_label: "Creating your account...",
-              social_provider_text: "Sign up with {{provider}}",
-              link_text: "Don't have an account? Sign up",
-            },
-          },
-        }}
       />
     </AuthLayout>
   );
