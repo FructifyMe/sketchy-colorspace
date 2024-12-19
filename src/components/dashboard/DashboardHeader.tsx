@@ -28,25 +28,25 @@ const DashboardHeader = ({ onToggleSettings }: DashboardHeaderProps) => {
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
       <div>
-        <h1 className="text-3xl font-bold">Your Estimates</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Your Estimates</h1>
         <p className="text-muted-foreground mt-2">
           Create and manage your estimates
         </p>
       </div>
-      <div className="flex gap-4">
-        <Button onClick={handleLogout} variant="outline" className="gap-2">
+      <div className="flex flex-wrap gap-2 sm:gap-4 w-full sm:w-auto">
+        <Button onClick={handleLogout} variant="outline" className="gap-2 w-full sm:w-auto">
           <LogOut className="h-4 w-4" />
           Sign Out
         </Button>
-        <Button onClick={onToggleSettings} variant="outline" className="gap-2">
+        <Button onClick={onToggleSettings} variant="outline" className="gap-2 w-full sm:w-auto">
           <Settings className="h-4 w-4" />
           Business Settings
         </Button>
         <Button 
           onClick={() => navigate('/estimates/new')} 
-          className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 transition-all duration-200"
+          className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 transition-all duration-200 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           New Estimate

@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import VoiceRecorder from '../VoiceRecorder';
 
 interface VoiceRecordingSectionProps {
@@ -7,15 +7,19 @@ interface VoiceRecordingSectionProps {
 
 const VoiceRecordingSection = ({ onTranscriptionComplete }: VoiceRecordingSectionProps) => {
   return (
-    <Card className="mb-6">
-      <div className="p-6 text-center space-y-4">
-        <h3 className="text-lg font-semibold">Record Your Estimate Details</h3>
-        <p className="text-gray-600">
+    <Card className="mb-4 sm:mb-6">
+      <CardHeader>
+        <h3 className="text-lg sm:text-xl font-semibold text-center">Record Your Estimate Details</h3>
+      </CardHeader>
+      <CardContent className="space-y-4 p-4 sm:p-6">
+        <p className="text-sm sm:text-base text-muted-foreground text-center max-w-md mx-auto">
           Simply speak into your device to create an estimate. Describe the work, 
           pricing, and client details naturally.
         </p>
-        <VoiceRecorder onTranscriptionComplete={onTranscriptionComplete} />
-      </div>
+        <div className="flex justify-center">
+          <VoiceRecorder onTranscriptionComplete={onTranscriptionComplete} />
+        </div>
+      </CardContent>
     </Card>
   );
 };

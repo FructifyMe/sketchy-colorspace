@@ -35,9 +35,9 @@ const EstimateFormSection = ({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <Card className="p-4">
-        <div className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6 max-w-[95%] sm:max-w-none mx-auto">
+      <Card className="p-3 sm:p-4">
+        <div className="space-y-3 sm:space-y-4">
           <ClientInfoForm
             clientInfo={formData.clientInfo}
             onChange={(info) => onFormDataChange({ clientInfo: info })}
@@ -51,21 +51,27 @@ const EstimateFormSection = ({
           <EstimateItems items={formData.items} />
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes & Special Instructions</Label>
+            <Label htmlFor="notes">Additional Notes</Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={(e) => onFormDataChange({ notes: e.target.value })}
-              placeholder="Enter any special instructions, access details, or additional notes..."
               className="min-h-[100px]"
+              placeholder="Add any additional notes or comments..."
             />
           </div>
         </div>
       </Card>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? 'Saving...' : 'Save Estimate'}
-      </Button>
+      <div className="flex justify-end">
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="w-full sm:w-auto"
+        >
+          {isSubmitting ? 'Creating...' : 'Create Estimate'}
+        </Button>
+      </div>
     </form>
   );
 };
